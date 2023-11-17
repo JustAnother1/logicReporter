@@ -2,6 +2,9 @@ package de.nomagic;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -15,6 +18,8 @@ import ch.qos.logback.core.util.StatusPrinter;
 
 public class ReporterMain
 {
+
+    private String signalFile = null;
 
     public ReporterMain(String[] args)
     {
@@ -118,9 +123,86 @@ public class ReporterMain
         }
     }
 
+    public void printHelp()
+    {
+        System.out.println("Printer Controller for Pacemaker");
+        System.out.println("Parameters:");
+        System.out.println("-h                         : print this message.");
+        System.out.println("-s <logic analyzer file>   : file that will be reported on (required))");
+        System.out.println("-v                         : verbose output for even more messages use -v -v");
+    }
+
+    public boolean parseCommandLineParameters(final String[] args)
+    {
+        for(int i = 0; i < args.length; i++)
+        {
+            if(true == args[i].startsWith("-"))
+            {
+                if(true == "-h".equals(args[i]))
+                {
+                    return false;
+                }
+                else if(true == "-s".equals(args[i]))
+                {
+                    i++;
+                    signalFile = args[i];
+                }
+                else if(true == "-v".equals(args[i]))
+                {
+                    // already handled -> ignore
+                }
+                else
+                {
+                    System.err.println("Invalid Parameter : " + args[i]);
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+        if(null == signalFile)
+        {
+            // providing a signal file is required.
+            return false;
+        }
+        // OK
+        return true;
+    }
+
+    private boolean processFile()
+    {
+        System.out.println("Reading " + signalFile + " ...");
+        SaleaeSalFile dataSource = new SaleaeSalFile(signalFile);
+        if(false == dataSource.isValid())
+        {
+            System.err.println("File is not valid !");
+            return false;
+        }
+
+        return true;
+    }
+
     public static void main(String[] args)
     {
         ReporterMain rm = new ReporterMain(args);
+        if(false == rm.parseCommandLineParameters(args))
+        {
+            rm.printHelp();
+            return;
+        }
+        else
+        {
+            if(true == rm.processFile())
+            {
+                System.out.println("Done!");
+            }
+            else
+            {
+                System.out.println("Failed!");
+            }
+        }
     }
 
 }

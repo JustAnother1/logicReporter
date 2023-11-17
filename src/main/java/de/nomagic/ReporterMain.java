@@ -88,25 +88,29 @@ public class ReporterMain
     {
         try
         {
-            final InputStream s = ReporterMain.class.getResourceAsStream("/commit-id");
+            final InputStream s = ReporterMain.class.getResourceAsStream("/git.properties");
             final BufferedReader in = new BufferedReader(new InputStreamReader(s));
-            final String commitId = in.readLine();
-            final String changes = in.readLine();
-            if(null != changes)
+
+            String commitId = "";
+            StringBuilder comment = new StringBuilder();
+            String line = in.readLine();
+            while(null != line)
             {
-                if(0 < changes.length())
+                if(true == line.startsWith("git.commit.id.full="))
                 {
-                    return commitId + "-(" + changes + ")";
+                    commitId = line.substring(line.indexOf('=') + 1);
                 }
-                else
+                else if(true == line.startsWith("git.dirty=true"))
                 {
-                    return commitId;
+                    comment.append(" dirty ");
                 }
+                else if(true == line.startsWith("git.build.time="))
+                {
+                    comment.append(" " + line.substring(line.indexOf('=') + 1));
+                }
+                line = in.readLine();
             }
-            else
-            {
-                return commitId;
-            }
+            return commitId + comment.toString();
         }
         catch( Exception e )
         {

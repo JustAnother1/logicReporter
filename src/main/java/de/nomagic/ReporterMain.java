@@ -19,7 +19,8 @@ import ch.qos.logback.core.util.StatusPrinter;
 public class ReporterMain
 {
 
-    private String signalFile = null;
+    private String swdioFile = null;
+    private String swclkFile = null;
 
     public ReporterMain(String[] args)
     {
@@ -127,9 +128,10 @@ public class ReporterMain
     {
         System.out.println("Printer Controller for Pacemaker");
         System.out.println("Parameters:");
-        System.out.println("-h                         : print this message.");
-        System.out.println("-s <logic analyzer file>   : file that will be reported on (required))");
-        System.out.println("-v                         : verbose output for even more messages use -v -v");
+        System.out.println("-h                           : print this message.");
+        System.out.println("-swclk <logic analyzer file> : SWCLK channel file that will be reported on (required))");
+        System.out.println("-swdio <logic analyzer file> : SWDIO channel file that will be reported on (required))");
+        System.out.println("-v                           : verbose output for even more messages use -v -v");
     }
 
     public boolean parseCommandLineParameters(final String[] args)
@@ -142,10 +144,15 @@ public class ReporterMain
                 {
                     return false;
                 }
-                else if(true == "-s".equals(args[i]))
+                else if(true == "-swclk".equals(args[i]))
                 {
                     i++;
-                    signalFile = args[i];
+                    swclkFile = args[i];
+                }
+                else if(true == "-swdio".equals(args[i]))
+                {
+                    i++;
+                    swdioFile = args[i];
                 }
                 else if(true == "-v".equals(args[i]))
                 {
@@ -162,7 +169,7 @@ public class ReporterMain
                 return false;
             }
         }
-        if(null == signalFile)
+        if((null == swclkFile) || (null == swdioFile))
         {
             // providing a signal file is required.
             return false;
@@ -173,15 +180,34 @@ public class ReporterMain
 
     private boolean processFile()
     {
-        System.out.println("Reading " + signalFile + " ...");
-        SaleaeSalFile dataSource = new SaleaeSalFile(signalFile);
-        if(false == dataSource.isValid())
+        try {
+            // SWCLK
+            System.out.println("Reading " + swclkFile + " ...");
+            FileInputStream swclkFin = new FileInputStream(swclkFile);
+            SaleaDigitalChannel swclkChannel = new SaleaDigitalChannel(swclkFin);
+            if(false == swclkChannel.isValid())
+            {
+                System.err.println("File is not valid !");
+                return false;
+            }
+
+            // SWDIO
+            System.out.println("Reading " + swdioFile + " ...");
+            FileInputStream swdioFin = new FileInputStream(swdioFile);
+            SaleaDigitalChannel swdioChannel = new SaleaDigitalChannel(swdioFin);
+            if(false == swdioChannel.isValid())
+            {
+                System.err.println("File is not valid !");
+                return false;
+            }
+            // TODO
+            return true;
+        }
+        catch (FileNotFoundException e)
         {
-            System.err.println("File is not valid !");
+            e.printStackTrace();
             return false;
         }
-
-        return true;
     }
 
     public static void main(String[] args)

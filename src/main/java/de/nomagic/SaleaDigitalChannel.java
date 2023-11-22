@@ -8,8 +8,6 @@ import java.nio.ByteOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jdk.internal.org.jline.utils.Log;
-
 //  little endian
 
 // byte[8] identifier;  // <SALEAE>
@@ -25,10 +23,21 @@ import jdk.internal.org.jline.utils.Log;
 public class SaleaDigitalChannel
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
+
     private boolean valid;
+    private boolean initiallyHigh;
+    private long transitions;
+    private double sampleTime;
+    private InputStream in;
+
+    private boolean curHigh;
+    private double nextTime;
+    private boolean nextHigh;
 
     public SaleaDigitalChannel(InputStream in)
     {
+        this.in = in;
+
         if(null == in)
         {
             log.error("InputStream is NULL !");
@@ -90,30 +99,60 @@ public class SaleaDigitalChannel
                 valid = false;
                 return;
             }
+            if(0 == initialState[0])
+            {
+                initiallyHigh = false;
+            }
+            else if(1 == initialState[0])
+            {
+                initiallyHigh = true;
+            }
+            else
+            {
+                valid = false;
+                return;
+            }
 
             byte[] begin_time = in.readNBytes(8);
-            ByteBuffer buffer = ByteBuffer.wrap(begin_time);
-            log.debug("Buffer default byte order: {}", buffer.order());
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
-            double start_time = buffer.getDouble();
-            log.debug("begin time: {} ({})", start_time, begin_time);
-
+            double start_time = bytesToDouble(begin_time);
+            log.debug("begin time: {}", start_time);
 
             byte[] end_time = in.readNBytes(8);
-            ByteBuffer e_buffer = ByteBuffer.wrap(end_time);
-            e_buffer.order(ByteOrder.LITTLE_ENDIAN);
-            double d_end_time = e_buffer.getDouble();
-            log.debug("end time: {} ({})", d_end_time, end_time);
+            double d_end_time = bytesToDouble(end_time);
+            log.debug("end time: {}", d_end_time);
 
             byte[] num_transitions = in.readNBytes(8);
             ByteBuffer n_buffer = ByteBuffer.wrap(num_transitions);
             n_buffer.order(ByteOrder.LITTLE_ENDIAN);
-            long transitions = n_buffer.getLong();
-            log.debug("transitions: {} ({})", transitions, num_transitions);
+            transitions = n_buffer.getLong();
+            log.debug("transitions: {}", transitions);
 
+            if(1 > transitions)
+            {
+                valid = false;
+                return;
+            }
+            sampleTime = 0.0;
+            if(true == initiallyHigh)
+            {
+                log.debug("initially High");
+                curHigh = true;
+                nextHigh = false;
+            }
+            else
+            {
+                log.debug("initially Low");
+                curHigh = false;
+                nextHigh = true;
+            }
+
+            byte[] readTimeBuf = in.readNBytes(8);
+            double readTime = bytesToDouble(readTimeBuf);
+            nextTime = readTime;
+
+            /* count transitions
             long countedTransitions = 0;
             double lastSampleTime = 0;
-            // count transitions
             while(7 < in.available())
             {
                 byte[] sample_time = in.readNBytes(8);
@@ -134,7 +173,7 @@ public class SaleaDigitalChannel
                 countedTransitions++;
             }
             log.debug("counted transitions: {}", countedTransitions);
-
+            */
         }
         catch (IOException e)
         {
@@ -148,6 +187,107 @@ public class SaleaDigitalChannel
     public boolean isValid()
     {
         return valid;
+    }
+
+    public boolean isInitiallyHigh()
+    {
+        return initiallyHigh;
+    }
+
+    public long getNumberEdges()
+    {
+        return transitions;
+    }
+
+    public double getTimeOfEdgeAfter(double nowTime) throws IOException
+    {
+        if(sampleTime == nowTime)
+        {
+            if(7 < in.available())
+            {
+                byte[] sample_time = in.readNBytes(8);
+                double d_sample_time = bytesToDouble(sample_time);
+                // log.debug("sample time: {}", d_sample_time);
+                if(sampleTime < d_sample_time)
+                {
+                    // OK
+                }
+                else
+                {
+                    log.error("sample time jumped from {} to {} !", sampleTime, d_sample_time);
+                    valid = false;
+                }
+                sampleTime = d_sample_time;
+                return d_sample_time;
+            }
+            else
+            {
+                log.error("reached end of file !", sampleTime);
+                System.exit(1);
+                return 0.0; // to avoid warning ;-)
+            }
+        }
+        else
+        {
+            // search for sample after provided time
+            while(7 < in.available())
+            {
+                byte[] sample_time = in.readNBytes(8);
+                double d_sample_time = bytesToDouble(sample_time);
+
+                if(sampleTime < d_sample_time)
+                {
+                    // OK
+                }
+                else
+                {
+                    log.error("sample time jumped from {} to {} !", sampleTime, d_sample_time);
+                    valid = false;
+                    System.exit(1);
+                }
+                sampleTime = d_sample_time;
+                if(sampleTime < nowTime)
+                {
+                    // we found the edge after the requested time
+                    return sampleTime;
+                }
+            }
+            log.error("reached end of file !", sampleTime);
+            System.exit(1);
+            return 0.0; // to avoid warning ;-)
+        }
+    }
+
+    public boolean isHighAt(double nowTime) throws IOException
+    {
+        while(nowTime > nextTime)
+        {
+            if(7 < in.available())
+            {
+                byte[] readTimeBuf = in.readNBytes(8);
+                double readTime = bytesToDouble(readTimeBuf);
+                // next -> cur
+                curHigh = nextHigh;
+                // read is new next
+                nextTime = readTime;
+                nextHigh = !curHigh;
+            }
+            else
+            {
+                // no next edge
+                nextTime = nowTime;
+            }
+        }
+        return curHigh;
+    }
+
+
+    private double bytesToDouble(byte[] data)
+    {
+        ByteBuffer buffer = ByteBuffer.wrap(data);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        double res = buffer.getDouble();
+        return res;
     }
 
 }

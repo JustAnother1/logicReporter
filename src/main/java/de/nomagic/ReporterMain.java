@@ -2,9 +2,9 @@ package de.nomagic;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -182,6 +182,7 @@ public class ReporterMain
     {
         try {
             // SWCLK
+            System.out.println("SWCLK: ");
             System.out.println("Reading " + swclkFile + " ...");
             FileInputStream swclkFin = new FileInputStream(swclkFile);
             SaleaDigitalChannel swclkChannel = new SaleaDigitalChannel(swclkFin);
@@ -192,6 +193,7 @@ public class ReporterMain
             }
 
             // SWDIO
+            System.out.println("SWDIO: ");
             System.out.println("Reading " + swdioFile + " ...");
             FileInputStream swdioFin = new FileInputStream(swdioFile);
             SaleaDigitalChannel swdioChannel = new SaleaDigitalChannel(swdioFin);
@@ -200,10 +202,17 @@ public class ReporterMain
                 System.err.println("File is not valid !");
                 return false;
             }
-            // TODO
-            return true;
+            SwdReporter rep = new SwdReporter();
+            rep.setSWDIO(swdioChannel);
+            rep.setSWCLK(swclkChannel);
+            return rep.reportTo(System.out);
         }
         catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
             return false;

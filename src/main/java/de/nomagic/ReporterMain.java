@@ -15,6 +15,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
+import de.nomagic.swd.SwdReporter;
 
 public class ReporterMain
 {

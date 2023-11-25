@@ -1,4 +1,4 @@
-package de.nomagic;
+package de.nomagic.swd;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -7,15 +7,16 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.nomagic.PacketSequence;
+import de.nomagic.SaleaDigitalChannel;
+import de.nomagic.swd.packets.SwdPacket;
+
 public class SwdReporter
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
     private SaleaDigitalChannel swdio;
     private SaleaDigitalChannel swclk;
-
-    // state:
-
 
     // recoded bit Stream
     private static final int CLK_FALLING_DATA_0   = 0;
@@ -24,12 +25,21 @@ public class SwdReporter
     private static final int CLK_RISING_DATA_1 = 3;
 
     private Vector<Integer> edges = new Vector<Integer>();
-    private Vector<Integer> bits = new Vector<Integer>();
     private PrintStream out;
+    private swdState state;
+    private BitStreamCracker bitToPackets;
+    private PacketSequence packets;
+
+    private int progressCounter = 0;
+    private boolean report_progress = true;
+    private boolean report_edge_level = false;
+    private boolean report_bit_level = false;
 
     public SwdReporter()
     {
-
+        state = new swdState();
+        packets = new PacketSequence();
+        bitToPackets = new BitStreamCracker(packets);
     }
 
     public void setSWDIO(SaleaDigitalChannel swdioChannel)
@@ -69,12 +79,12 @@ public class SwdReporter
                 // falling edge on SWCLK
                 if(true == dataHigh)
                 {
-                    // out.append("F1,");
+                    if(true == report_edge_level) out.append("F1,");
                     edges.add(CLK_FALLING_DATA_1);
                 }
                 else
                 {
-                    // out.append("F0,");
+                    if(true == report_edge_level) out.append("F0,");
                     edges.add(CLK_FALLING_DATA_0);
                 }
                 lastStateSwclkHigh = false;
@@ -84,29 +94,55 @@ public class SwdReporter
                 // rising edge on SWCLK
                 if(true == dataHigh)
                 {
-                    // out.append("R1,");
+                    if(true == report_edge_level) out.append("R1,");
                     edges.add(CLK_RISING_DATA_1);
                 }
                 else
                 {
-                    // out.append("R0,");
+                    if(true == report_edge_level) out.append("R0,");
                     edges.add(CLK_RISING_DATA_0);
                 }
                 lastStateSwclkHigh = true;
+            }
+            if(true == report_progress)
+            {
+                progressCounter++;
+                if(100 < progressCounter)
+                {
+                    out.append("*");
+                    progressCounter = 0;
+                }
             }
             if(i >= nextCheck)
             {
                 nextCheck = nextCheck + decodeBits();
             }
+            // for testing only
+            if(i > 1000)
+            {
+                break;
+            }
         }
-        decodeBits(); // decode last bits
+        // flush
+        // flushing edges
+        decodeBits();
+        // flushing last bits into packets
+        bitToPackets.flush();
+        // flushing last packets
+        SwdPacket foundPacket = packets.getNextPacket();
+        while(null != foundPacket)
+        {
+            foundPacket.reportTo(out);
+            foundPacket = packets.getNextPacket();
+        }
+
         out.append("End of recording");
         return true;
     }
 
     private int decodeBits()
     {
-        if(0 < edges.size())
+        while(0 < edges.size())
         {
             // data is valid on rising edge (TODO?)
             switch(edges.get(0))
@@ -117,33 +153,24 @@ public class SwdReporter
                 break;
 
             case CLK_RISING_DATA_1:
-                bits.add(1);
-                out.append("1,");
+                bitToPackets.add_one();
+                if(true == report_bit_level) out.append("1,");
                 break;
 
             case CLK_RISING_DATA_0:
-                bits.add(0);
-                out.append("0,");
+                bitToPackets.add_zero();
+                if(true == report_bit_level) out.append("0,");
                 break;
             }
             edges.remove(0);
         }
-        // disconnect at least 8x0
-
-        // Packet -> wait or Fail -> 8bit + 3 bit
-
-        // paket read or write -> 8bit + 3 bit + 33 bit
-
-        // JTAG to SWD = 16 bit =  (16bit) 0111 1001 1110 0111
-
-        // SWD to dormant = at least 50 bits 1 + (16bit) 0011 1101 1100 0111
-
-        // dormant to SWD = at least 8x1 + (128 bit) 0100 1001 1100 1111 1001 0000 0100 0110 1010 1001 1011 0100 1010 0001 0110 0001 1001 0111 1111 0101 1011 1011 1100 0111 0100 0101 0111 0000 0011 1101 1001 1000 0000 0101 1000 + at least 50x1
-
-        // JTAG to dormant = at least 5x1 + (31bit) 010 1110 1110 1110 1110 1110 1110 0110
-
-        // Line Reset at least 50x1 and 2x0
-        return 1;
+        int numBitsNeeded = bitToPackets.detectPackages();
+        SwdPacket foundPacket = packets.getNextPacket();
+        if(null != foundPacket)
+        {
+            foundPacket.reportTo(out);
+        }
+        return numBitsNeeded;
     }
 
 }

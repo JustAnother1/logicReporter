@@ -201,31 +201,9 @@ public class SaleaDigitalChannel
 
     public double getTimeOfEdgeAfter(double nowTime) throws IOException
     {
-        if(sampleTime == nowTime)
+        if(sampleTime >= nowTime)
         {
-            if(7 < in.available())
-            {
-                byte[] sample_time = in.readNBytes(8);
-                double d_sample_time = bytesToDouble(sample_time);
-                // log.debug("sample time: {}", d_sample_time);
-                if(sampleTime < d_sample_time)
-                {
-                    // OK
-                }
-                else
-                {
-                    log.error("sample time jumped from {} to {} !", sampleTime, d_sample_time);
-                    valid = false;
-                }
-                sampleTime = d_sample_time;
-                return d_sample_time;
-            }
-            else
-            {
-                log.error("reached end of file !", sampleTime);
-                System.exit(1);
-                return 0.0; // to avoid warning ;-)
-            }
+            return sampleTime;
         }
         else
         {
@@ -253,8 +231,7 @@ public class SaleaDigitalChannel
                 }
             }
             log.error("reached end of file !", sampleTime);
-            System.exit(1);
-            return 0.0; // to avoid warning ;-)
+            return sampleTime;
         }
     }
 

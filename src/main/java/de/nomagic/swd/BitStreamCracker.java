@@ -232,7 +232,14 @@ public class BitStreamCracker
             //  - Line Reset at least 50x1 and 2x0
             //  - SWD to dormant = at least 50 bits 1 + (16bit) 0011 1101 1100 0111
             //  - dormant to SWD = at least 8x1 + (128 bit) 0100 1001 1100 1111 1001 0000 0100 0110 1010 1001 1011 0100 1010 0001 0110 0001 1001 0111 1111 0101 1011 1011 1100 0111 0100 0101 0111 0000 0011 1101 1001 1000 0000 0101 1000 + at least 50x1
-
+            if(num < 5)
+            {
+                return 50;
+            }
+            if(0 != bits.get(num))
+            {
+                return 50;
+            }
             if(num < 8)
             {
                 int res;

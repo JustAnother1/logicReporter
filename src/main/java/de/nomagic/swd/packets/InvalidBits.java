@@ -27,8 +27,8 @@ public class InvalidBits extends SwdPacket
                 {
                     out.print("1");
                 }
-                out.println(" <-- INVALID BITS !!!");
             }
+            out.println(" <-- INVALID BITS !!!");
         }
         else
         {

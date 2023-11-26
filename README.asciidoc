@@ -1,0 +1,19 @@
+logic reporter
+==============
+
+This tool can read files that contain  the logic levels of a recorded signal. It can then go through the signal and report everything it sees.
+This is not a analyzer plug-in and it does not limit itself to just annotating the waveform. This tool is helpful for signal that have a state. Having a state means that the signals history has an influence on the meaning of the following signal.
+
+== license
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, see <http://www.gnu.org/licenses/>

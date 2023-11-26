@@ -1,4 +1,4 @@
-package de.nomagic;
+package de.nomagic.logic;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,31 +20,26 @@ import org.slf4j.LoggerFactory;
 // for each transition in num_transitions
 //     double transition_time;
 // https://support.saleae.com/faq/technical-faq/binary-export-format-logic-2
-public class SaleaDigitalChannel
+public class SaleaDigitalChannel extends SampleSource
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
-    private boolean valid;
-    private boolean initiallyHigh;
     private long transitions;
-    private double sampleTime;
     private InputStream in;
-
-    private boolean curHigh;
-    private double nextTime;
-    private boolean nextHigh;
+    private double endTimeSeconds;
 
     public SaleaDigitalChannel(InputStream in)
     {
+        super();
         this.in = in;
 
         if(null == in)
         {
+            // no data source
             log.error("InputStream is NULL !");
             valid = false;
             return;
         }
-
         try
         {
             // <SALEAE>
@@ -59,10 +54,12 @@ public class SaleaDigitalChannel
                 || (identifier[7] != '>')
                 )
             {
+                // invalid identifier - not a Saleae file?
                 log.error("Identifier is {}!", identifier);
                 valid = false;
                 return;
             }
+
             // Version = 0
             byte[] version = in.readNBytes(4);
             if(    (version[0] != 0)
@@ -71,10 +68,12 @@ public class SaleaDigitalChannel
                 || (version[3] != 0)
                 )
             {
+                // wrong file format version - can not decode data
                 log.error("Version is {}!", version);
                 valid = false;
                 return;
             }
+
             // Type = 0 digital, 1 = analog
             byte[] type = in.readNBytes(4);
             if(    (type[0] != 0)
@@ -83,6 +82,7 @@ public class SaleaDigitalChannel
                 || (type[3] != 0)
                 )
             {
+                // wrong data type - can not decode data
                 log.error("Type is {}!", type);
                 valid = false;
                 return;
@@ -96,9 +96,12 @@ public class SaleaDigitalChannel
                 || (initialState[3] != 0)
                 )
             {
+                // invalid initial state - corrupted data ?
                 valid = false;
                 return;
             }
+
+            boolean initiallyHigh;
             if(0 == initialState[0])
             {
                 initiallyHigh = false;
@@ -115,11 +118,11 @@ public class SaleaDigitalChannel
 
             byte[] begin_time = in.readNBytes(8);
             double start_time = bytesToDouble(begin_time);
-            log.debug("begin time: {}", start_time);
+            log.debug("begin time: {} seconds", start_time);
 
             byte[] end_time = in.readNBytes(8);
-            double d_end_time = bytesToDouble(end_time);
-            log.debug("end time: {}", d_end_time);
+            double endTimeSeconds = bytesToDouble(end_time);
+            log.debug("end time: {} seconds", endTimeSeconds);
 
             byte[] num_transitions = in.readNBytes(8);
             ByteBuffer n_buffer = ByteBuffer.wrap(num_transitions);
@@ -132,66 +135,18 @@ public class SaleaDigitalChannel
                 valid = false;
                 return;
             }
-            sampleTime = 0.0;
-            if(true == initiallyHigh)
-            {
-                log.debug("initially High");
-                curHigh = true;
-                nextHigh = false;
-            }
-            else
-            {
-                log.debug("initially Low");
-                curHigh = false;
-                nextHigh = true;
-            }
 
-            byte[] readTimeBuf = in.readNBytes(8);
-            double readTime = bytesToDouble(readTimeBuf);
-            nextTime = readTime;
-
-            /* count transitions
-            long countedTransitions = 0;
-            double lastSampleTime = 0;
-            while(7 < in.available())
-            {
-                byte[] sample_time = in.readNBytes(8);
-                ByteBuffer sample_buffer = ByteBuffer.wrap(sample_time);
-                sample_buffer.order(ByteOrder.LITTLE_ENDIAN);
-                double d_sample_time = sample_buffer.getDouble();
-                // log.debug("sample time: {}", d_sample_time);
-                if(lastSampleTime < d_sample_time)
-                {
-                    // OK
-                }
-                else
-                {
-                    log.error("sample time jumped from {} to {} !", lastSampleTime, d_sample_time);
-                    valid = false;
-                }
-                lastSampleTime = d_sample_time;
-                countedTransitions++;
-            }
-            log.debug("counted transitions: {}", countedTransitions);
-            */
+            initializeSampleQueue(initiallyHigh);
         }
         catch (IOException e)
         {
+            // can not read sample data
             e.printStackTrace();
             valid = false;
             return;
         }
+        // everything worked out OK
         valid = true;
-    }
-
-    public boolean isValid()
-    {
-        return valid;
-    }
-
-    public boolean isInitiallyHigh()
-    {
-        return initiallyHigh;
     }
 
     public long getNumberEdges()
@@ -199,65 +154,22 @@ public class SaleaDigitalChannel
         return transitions;
     }
 
-    public double getTimeOfEdgeAfter(double nowTime) throws IOException
+    @Override
+    protected double getNextEndTime()
     {
-        if(sampleTime >= nowTime)
+        byte[] readTimeBuf;
+        try
         {
-            return sampleTime;
+            readTimeBuf = in.readNBytes(8);
+            double readTime = bytesToDouble(readTimeBuf);
+            return readTime;
         }
-        else
+        catch(IOException e)
         {
-            // search for sample after provided time
-            while(7 < in.available())
-            {
-                byte[] sample_time = in.readNBytes(8);
-                double d_sample_time = bytesToDouble(sample_time);
-
-                if(sampleTime < d_sample_time)
-                {
-                    // OK
-                }
-                else
-                {
-                    log.error("sample time jumped from {} to {} !", sampleTime, d_sample_time);
-                    valid = false;
-                    System.exit(1);
-                }
-                sampleTime = d_sample_time;
-                if(sampleTime < nowTime)
-                {
-                    // we found the edge after the requested time
-                    return sampleTime;
-                }
-            }
-            log.error("reached end of file !", sampleTime);
-            return sampleTime;
+            e.printStackTrace();
+            return endTimeSeconds;
         }
     }
-
-    public boolean isHighAt(double nowTime) throws IOException
-    {
-        while(nowTime > nextTime)
-        {
-            if(7 < in.available())
-            {
-                byte[] readTimeBuf = in.readNBytes(8);
-                double readTime = bytesToDouble(readTimeBuf);
-                // next -> cur
-                curHigh = nextHigh;
-                // read is new next
-                nextTime = readTime;
-                nextHigh = !curHigh;
-            }
-            else
-            {
-                // no next edge
-                nextTime = nowTime;
-            }
-        }
-        return curHigh;
-    }
-
 
     private double bytesToDouble(byte[] data)
     {

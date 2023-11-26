@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.nomagic.PacketSequence;
-import de.nomagic.SaleaDigitalChannel;
+import de.nomagic.logic.SaleaDigitalChannel;
 import de.nomagic.swd.packets.SwdPacket;
 
 public class SwdReporter
@@ -67,7 +67,7 @@ public class SwdReporter
         }
 
         double now_time = 0;
-        boolean lastStateSwclkHigh = swclk.isInitiallyHigh();
+        boolean lastStateSwclkHigh = swclk.isHighAt(0.0);
         int nextCheck = 0;
 
         for(int i = 0; i < swclk.getNumberEdges(); i++)

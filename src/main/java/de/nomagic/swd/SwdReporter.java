@@ -31,8 +31,8 @@ public class SwdReporter
     private PacketSequence packets;
 
     private int progressCounter = 0;
-    private boolean report_progress = true;
-    private boolean report_edge_level = true;
+    private boolean report_progress = false;
+    private boolean report_edge_level = false;
     private boolean report_bit_level = true;
 
     public SwdReporter()

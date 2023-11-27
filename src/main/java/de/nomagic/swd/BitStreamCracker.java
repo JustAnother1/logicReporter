@@ -2,24 +2,37 @@ package de.nomagic.swd;
 
 import java.util.Vector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.nomagic.PacketSequence;
 import de.nomagic.swd.packets.Disconnect;
+import de.nomagic.swd.packets.DormantToSwd;
 import de.nomagic.swd.packets.FaultPacket;
 import de.nomagic.swd.packets.IdleBits;
 import de.nomagic.swd.packets.InvalidBits;
 import de.nomagic.swd.packets.JtagToDormant;
 import de.nomagic.swd.packets.JtagToSwd;
+import de.nomagic.swd.packets.LineReset;
 import de.nomagic.swd.packets.OkPacket;
 import de.nomagic.swd.packets.SwdPacket;
+import de.nomagic.swd.packets.SwdToDormant;
 import de.nomagic.swd.packets.WaitPacket;
 
 public class BitStreamCracker
 {
-    private Vector<Integer> bits = new Vector<Integer>();
+    private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private final PacketSequence resStream;
+    private Vector<Integer> bits = new Vector<Integer>();
+
+    private int numBitsMissing;
 
     public BitStreamCracker(PacketSequence packets)
     {
+        if(null == packets)
+        {
+            log.error("No PacketSequence provided!");
+        }
         resStream = packets;
     }
 
@@ -39,6 +52,10 @@ public class BitStreamCracker
      */
     public int detectPackages()
     {
+        if(true == bits.isEmpty())
+        {
+            return 9;
+        }
         if(0 == bits.get(0))
         {
             // pattern start with a 0
@@ -55,7 +72,7 @@ public class BitStreamCracker
     {
         // try to report everything that is still in the queue
         int res = 0;
-        while(0 == res)
+        while((false == bits.isEmpty()) && (0 == res))
         {
             if(0 == bits.get(0))
             {
@@ -90,28 +107,30 @@ public class BitStreamCracker
         //  - idle bits single 0 bits
         //  - JTAG to SWD = 16 bit =  (16bit) 0111 1001 1110 0111
 
-        if(9 > bits.size())
+        if(8 > bits.size())
         {
             // not enough bits to decide
-            return 9 - bits.size();
+            return 8 - bits.size();
         }
         // count 0
         int num = 1;
-        while(0 == bits.get(num))
+        while(num < bits.size())
         {
-            num++;
-        }
-        if(num == bits.size())
-        {
-            // only 0 - no 1
-            return 1; // we need at least one 1 to be sure that the sequence has ended
+            if(0 == bits.get(num))
+            {
+                num++;
+            }
+            else
+            {
+                break;
+            }
         }
         if(1 == num)
         {
-            if(17 > bits.size())
+            if(16 > bits.size())
             {
                 // not enough bits to decide
-                return 17 - bits.size();
+                return 16 - bits.size();
             }
             if( // bits.get(0) is 0 we already know that
                    (1 == bits.get(1))
@@ -210,7 +229,7 @@ public class BitStreamCracker
         if(num == bits.size())
         {
             // just a bunch of 1's. This can go on for ever. We need an 0 to say anything.
-            return 50;
+            return 1;
         }
         // if a packet then bit 6 is Stop and needs to be 0
         //         012345678 901
@@ -223,121 +242,278 @@ public class BitStreamCracker
                   )
         {
             // is a packet
-            handlePacket();
+            return handlePacket();
         }
         else
         {
+            numBitsMissing = 500;
             // not a packet therefore:
             //  - JTAG to dormant = at least 5x1 + (31bit) 010 1110 1110 1110 1110 1110 1110 0110
             //  - Line Reset at least 50x1 and 2x0
             //  - SWD to dormant = at least 50 bits 1 + (16bit) 0011 1101 1100 0111
             //  - dormant to SWD = at least 8x1 + (128 bit) 0100 1001 1100 1111 1001 0000 0100 0110 1010 1001 1011 0100 1010 0001 0110 0001 1001 0111 1111 0101 1011 1011 1100 0111 0100 0101 0111 0000 0011 1101 1001 1000 0000 0101 1000 + at least 50x1
-            if(num < 5)
-            {
-                return 50;
-            }
-            if(0 != bits.get(num))
-            {
-                return 50;
-            }
             if(num < 8)
             {
-                int res;
+                boolean res;
                 res = checkIfJtagToDormant(num);
-                if(0 > res)
+                if(false == res)
                 {
-                    InvalidBits badBits = new InvalidBits();
-                    for(int i = 0; i < num; i++)
+                    if(500 == numBitsMissing)
                     {
-                        bits.remove(0); // bits then shift forward
-                        badBits.add(0);
+                        // did not match - will not match -> error
+                        InvalidBits badBits = new InvalidBits();
+                        for(int i = 0; i < num; i++)
+                        {
+                            bits.remove(0); // bits then shift forward
+                            badBits.add(0);
+                        }
+                        resStream.add(badBits);
+                        return 0;
                     }
-                    resStream.add(badBits);
-                    return 0;
+                    else
+                    {
+                        // might be a match - we need more bits
+                        return numBitsMissing;
+                    }
                 }
                 else
                 {
-                    // we need more bits or we found something
-                    return res;
+                    // we found something
+                    return 0;
                 }
             }
             else if(num < 50)
             {
-                int res;
+                boolean res;
                 res = checkIfJtagToDormant(num);
-                if(0 > res)
+                if(false == res)
                 {
                     res = checkIfDormantToSwd(num);
                 }
-                if(0 > res)
+                if(false == res)
                 {
-                    InvalidBits badBits = new InvalidBits();
-                    for(int i = 0; i < num; i++)
+                    if(500 == numBitsMissing)
                     {
-                        bits.remove(0); // bits then shift forward
-                        badBits.add(0);
+                        // did not match - will not match -> error
+                        InvalidBits badBits = new InvalidBits();
+                        for(int i = 0; i < num; i++)
+                        {
+                            bits.remove(0); // bits then shift forward
+                            badBits.add(0);
+                        }
+                        resStream.add(badBits);
+                        return 0;
                     }
-                    resStream.add(badBits);
-                    return 0;
+                    else
+                    {
+                        // might be a match - we need more bits
+                        return numBitsMissing;
+                    }
                 }
                 else
                 {
-                    // we need more bits or we found something
-                    return res;
+                    // we found something
+                    return 0;
                 }
             }
             else
             {
-                int res;
+                boolean res;
                 res = checkIfJtagToDormant(num);
-                if(0 > res)
+                if(false == res)
                 {
                     res = checkIfDormantToSwd(num);
                 }
-                if(0 > res)
+                if(false == res)
                 {
                     res = checkIfSwdToDormant(num);
                 }
-                if(0 > res)
+                if(false == res)
                 {
                     res = checkIfLineReset(num);
                 }
-                if(0 > res)
+                if(false == res)
                 {
-                    InvalidBits badBits = new InvalidBits();
-                    for(int i = 0; i < num; i++)
+                    if(500 == numBitsMissing)
                     {
-                        bits.remove(0); // bits then shift forward
-                        badBits.add(0);
+                        // did not match - will not match -> error
+                        InvalidBits badBits = new InvalidBits();
+                        for(int i = 0; i < num; i++)
+                        {
+                            bits.remove(0); // bits then shift forward
+                            badBits.add(0);
+                        }
+                        resStream.add(badBits);
+                        return 0;
                     }
-                    resStream.add(badBits);
-                    return 0;
+                    else
+                    {
+                        // might be a match - we need more bits
+                        return numBitsMissing;
+                    }
                 }
                 else
                 {
-                    // we need more bits or we found something
-                    return res;
+                    // we found something
+                    return 0;
                 }
             }
         }
-        return 12;
     }
 
-    private int checkIfSwdToDormant(int num)
+    private boolean checkIfSwdToDormant(int num)
     {
-        // TODO Auto-generated method stub
-        return -1;
+        // SWD to dormant = at least 50 bits 1 + (16bit) 0011 1101 1100 0111
+        if((num + 16) > bits.size())
+        {
+            int bitsMissing = (num + 16) - bits.size();
+            if(bitsMissing < numBitsMissing)
+            {
+                numBitsMissing = bitsMissing;
+            }
+            return false;
+        }
+        if(
+                (0 == bits.get(num + 0))
+             && (0 == bits.get(num + 1))
+             && (1 == bits.get(num + 2))
+             && (1 == bits.get(num + 3))
+
+             && (1 == bits.get(num + 4))
+             && (1 == bits.get(num + 5))
+             && (0 == bits.get(num + 6))
+             && (1 == bits.get(num + 7))
+
+             && (1 == bits.get(num + 8))
+             && (1 == bits.get(num + 9))
+             && (0 == bits.get(num + 10))
+             && (0 == bits.get(num + 11))
+
+             && (0 == bits.get(num + 12))
+             && (1 == bits.get(num + 13))
+             && (1 == bits.get(num + 14))
+             && (1 == bits.get(num + 15))
+             )
+         {
+             // SWD to dormant
+             for(int i = 0; i < (16 + num); i++)
+             {
+                 bits.remove(0); // bits then shift forward
+             }
+             SwdPacket res = new SwdToDormant();
+             resStream.add(res);
+             return true;
+         }
+        else
+        {
+            return false;
+        }
     }
 
-    private int checkIfDormantToSwd(int num)
+    private boolean checkIfDormantToSwd(int num)
     {
-        // TODO Auto-generated method stub
-        return -1;
+        // dormant to SWD = at least 8x1 + (128 bit) 0100 1001  1100 1111  1001 0000  0100 0110
+        //                                           1010 1001  1011 0100  1010 0001  0110 0001
+        //                                           1001 0111  1111 0101  1011 1011  1100 0111
+        //                                           0100 0101  0111 0000  0011 1101  1001 1000
+        //                                           0000 0101  1000 + at least 50x1
+        if((num + 190) > bits.size())
+        {
+            int bitsMissing = (num + 190) - bits.size();
+            if(bitsMissing < numBitsMissing)
+            {
+                numBitsMissing = bitsMissing;
+            }
+            return false;
+        }
+        if(
+             (0 == bits.get(num +  0)) && (1 == bits.get(num +  1)) && (0 == bits.get(num +  2)) && (0 == bits.get(num +  3))
+          && (1 == bits.get(num +  4)) && (0 == bits.get(num +  5)) && (0 == bits.get(num +  6)) && (1 == bits.get(num +  7))
+          && (1 == bits.get(num +  8)) && (1 == bits.get(num +  9)) && (0 == bits.get(num + 10)) && (0 == bits.get(num + 11))
+          && (1 == bits.get(num + 12)) && (1 == bits.get(num + 13)) && (1 == bits.get(num + 14)) && (1 == bits.get(num + 15))
+          && (1 == bits.get(num + 16)) && (0 == bits.get(num + 17)) && (0 == bits.get(num + 18)) && (1 == bits.get(num + 19))
+          && (0 == bits.get(num + 20)) && (0 == bits.get(num + 21)) && (0 == bits.get(num + 22)) && (0 == bits.get(num + 23))
+          && (0 == bits.get(num + 24)) && (1 == bits.get(num + 25)) && (0 == bits.get(num + 26)) && (0 == bits.get(num + 27))
+          && (0 == bits.get(num + 28)) && (1 == bits.get(num + 29)) && (1 == bits.get(num + 30)) && (0 == bits.get(num + 31))
+
+          && (1 == bits.get(num + 32)) && (0 == bits.get(num + 33)) && (1 == bits.get(num + 34)) && (0 == bits.get(num + 35))
+          && (1 == bits.get(num + 36)) && (0 == bits.get(num + 37)) && (0 == bits.get(num + 38)) && (1 == bits.get(num + 39))
+          && (1 == bits.get(num + 40)) && (0 == bits.get(num + 41)) && (1 == bits.get(num + 42)) && (1 == bits.get(num + 43))
+          && (0 == bits.get(num + 44)) && (1 == bits.get(num + 45)) && (0 == bits.get(num + 46)) && (0 == bits.get(num + 47))
+          && (1 == bits.get(num + 48)) && (0 == bits.get(num + 49)) && (1 == bits.get(num + 50)) && (0 == bits.get(num + 51))
+          && (0 == bits.get(num + 52)) && (0 == bits.get(num + 53)) && (0 == bits.get(num + 54)) && (1 == bits.get(num + 55))
+          && (0 == bits.get(num + 56)) && (1 == bits.get(num + 57)) && (1 == bits.get(num + 58)) && (0 == bits.get(num + 59))
+          && (0 == bits.get(num + 60)) && (0 == bits.get(num + 61)) && (0 == bits.get(num + 62)) && (1 == bits.get(num + 63))
+
+          && (1 == bits.get(num + 64)) && (0 == bits.get(num + 65)) && (0 == bits.get(num + 66)) && (1 == bits.get(num + 67))
+          && (0 == bits.get(num + 68)) && (1 == bits.get(num + 69)) && (1 == bits.get(num + 70)) && (1 == bits.get(num + 71))
+          && (1 == bits.get(num + 72)) && (1 == bits.get(num + 73)) && (1 == bits.get(num + 74)) && (1 == bits.get(num + 75))
+          && (0 == bits.get(num + 76)) && (1 == bits.get(num + 77)) && (0 == bits.get(num + 78)) && (1 == bits.get(num + 79))
+          && (1 == bits.get(num + 80)) && (0 == bits.get(num + 81)) && (1 == bits.get(num + 82)) && (1 == bits.get(num + 83))
+          && (1 == bits.get(num + 84)) && (0 == bits.get(num + 85)) && (1 == bits.get(num + 86)) && (1 == bits.get(num + 87))
+          && (1 == bits.get(num + 88)) && (1 == bits.get(num + 89)) && (0 == bits.get(num + 90)) && (0 == bits.get(num + 91))
+          && (0 == bits.get(num + 92)) && (1 == bits.get(num + 93)) && (1 == bits.get(num + 94)) && (1 == bits.get(num + 95))
+
+          && (0 == bits.get(num + 96)) && (1 == bits.get(num + 97)) && (0 == bits.get(num + 98)) && (0 == bits.get(num + 99))
+          && (0 == bits.get(num +100)) && (1 == bits.get(num +101)) && (0 == bits.get(num +102)) && (1 == bits.get(num +103))
+          && (0 == bits.get(num +104)) && (1 == bits.get(num +105)) && (1 == bits.get(num +106)) && (1 == bits.get(num +107))
+          && (0 == bits.get(num +108)) && (0 == bits.get(num +109)) && (0 == bits.get(num +110)) && (0 == bits.get(num +111))
+          && (0 == bits.get(num +112)) && (0 == bits.get(num +113)) && (1 == bits.get(num +114)) && (1 == bits.get(num +115))
+          && (1 == bits.get(num +116)) && (1 == bits.get(num +117)) && (0 == bits.get(num +118)) && (1 == bits.get(num +119))
+          && (1 == bits.get(num +120)) && (0 == bits.get(num +121)) && (0 == bits.get(num +122)) && (1 == bits.get(num +123))
+          && (1 == bits.get(num +124)) && (0 == bits.get(num +125)) && (0 == bits.get(num +126)) && (0 == bits.get(num +127))
+
+          && (0 == bits.get(num +128)) && (0 == bits.get(num +129)) && (0 == bits.get(num +130)) && (0 == bits.get(num +131))
+          && (0 == bits.get(num +132)) && (1 == bits.get(num +133)) && (0 == bits.get(num +134)) && (1 == bits.get(num +135))
+          && (1 == bits.get(num +136)) && (0 == bits.get(num +137)) && (0 == bits.get(num +138)) && (0 == bits.get(num +139))
+             )
+        {
+            int nextNum = 140;
+            while(nextNum < bits.size())
+            {
+                if(1 == bits.get(num))
+                {
+                    num++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if((nextNum-140) > 49)
+            {
+                // Dormant to SWD
+                for(int i = 0; i < (31 + num); i++)
+                {
+                    bits.remove(0); // bits then shift forward
+                }
+                SwdPacket res = new DormantToSwd();
+                resStream.add(res);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
     }
 
-    private int checkIfLineReset(int num)
+    private boolean checkIfLineReset(int num)
     {
         //  - Line Reset at least 50x1 and 2x0
+        if((num + 2) > bits.size())
+        {
+            int bitsMissing = (num + 2) - bits.size();
+            if(bitsMissing < numBitsMissing)
+            {
+                numBitsMissing = bitsMissing;
+            }
+            return false;
+        }
         if( (num > 49)
             && (0 == bits.get(num + 0))
             && (0 == bits.get(num + 1))
@@ -348,19 +524,28 @@ public class BitStreamCracker
              {
                  bits.remove(0); // bits then shift forward
              }
-             SwdPacket res = new JtagToDormant();
+             SwdPacket res = new LineReset();
              resStream.add(res);
-             return 0;
+             return true;
          }
         else
         {
-            return -1;
+            return false;
         }
     }
 
-    private int checkIfJtagToDormant(int num)
+    private boolean checkIfJtagToDormant(int num)
     {
         //  - JTAG to dormant = at least 5x1 + (31bit) 010 1110 1110 1110 1110 1110 1110 0110
+        if((num + 31) > bits.size())
+        {
+            int bitsMissing = (num + 31) - bits.size();
+            if(bitsMissing < numBitsMissing)
+            {
+                numBitsMissing = bitsMissing;
+            }
+            return false;
+        }
         if(
                 (0 == bits.get(num + 0))
              && (1 == bits.get(num + 1))
@@ -401,19 +586,19 @@ public class BitStreamCracker
              && (1 == bits.get(num + 29))
              && (0 == bits.get(num + 30))
              )
-         {
-             // JTAG to SWD
-             for(int i = 0; i < (31 + num); i++)
-             {
-                 bits.remove(0); // bits then shift forward
-             }
-             SwdPacket res = new JtagToDormant();
-             resStream.add(res);
-             return 0;
-         }
+        {
+            // JTAG to SWD
+            for(int i = 0; i < (31 + num); i++)
+            {
+                bits.remove(0); // bits then shift forward
+            }
+            SwdPacket res = new JtagToDormant();
+            resStream.add(res);
+            return true;
+        }
         else
         {
-            return -1;
+            return false;
         }
     }
 
@@ -426,11 +611,11 @@ public class BitStreamCracker
         if(0 == bits.get(1))
         {
             // DPnAP
-            isDP = false;
+            isDP = true;
         }
         else
         {
-            isDP = true;
+            isDP = false;
         }
 
         if(0 == bits.get(2))
@@ -472,7 +657,7 @@ public class BitStreamCracker
                     long data = 0;
                     for(int i = 0; i < 32; i++)
                     {
-                        data = (data * 2) + bits.get(12 +i);
+                        data = (data * 2) + bits.get(12 + i);
                     }
                     res.setData(data);
                     res.setDataParity(bits.get(12 + 32));
@@ -540,7 +725,7 @@ public class BitStreamCracker
             }
             resStream.add(res);
         }
-        return 12;
+        return 0;
     }
 
 }

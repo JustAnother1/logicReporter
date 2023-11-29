@@ -9,14 +9,13 @@ public class OkPacket extends RequestPacket
 
     public OkPacket()
     {
-        // TODO Auto-generated constructor stub
     }
 
-    @Override
-    public void reportTo(PrintStream out)
+    protected String specificReport()
     {
-        reportRequestTo(out);
+        return ",ACK=OK,data=" + data + ", dpararty=" + dataParity;
     }
+
 
     public void setData(long data)
     {

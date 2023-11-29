@@ -9,15 +9,34 @@ public abstract class RequestPacket extends SwdPacket
     protected int a2a3;
     protected int requestParity;
 
-    public RequestPacket()
-    {
-        // TODO Auto-generated constructor stub
-    }
+    protected abstract String specificReport();
 
-    public void reportRequestTo(PrintStream out)
+    @Override
+    public void reportTo(PrintStream out)
     {
-        // TODO Auto-generated method stub
-
+        StringBuffer buf = new StringBuffer();
+        buf.append("SWD Packet(");
+        if(true == isDP)
+        {
+            buf.append("DP,");
+        }
+        else
+        {
+            buf.append("AP,");
+        }
+        if(true == isRead)
+        {
+            buf.append("Reading,");
+        }
+        else
+        {
+            buf.append("Writing,");
+        }
+        buf.append("a23=" + a2a3);
+        buf.append(",parity=" + requestParity);
+        buf.append(specificReport());
+        buf.append(")");
+        out.println(buf.toString());
     }
 
     public void setisDp(boolean isDP)

@@ -60,6 +60,7 @@ public class SwdReporter
             return false;
         }
         this.out = out;
+        state.reportTo(out);
         if((false == swclk.isValid()) || (false == swdio.isValid()))
         {
             log.error("data is invalid");
@@ -164,11 +165,16 @@ public class SwdReporter
             }
             edges.remove(0);
         }
-        int numBitsNeeded = bitToPackets.detectPackages();
+        int numBitsNeeded = 0;
+        do
+        {
+            numBitsNeeded = bitToPackets.detectPackages();
+        }while(numBitsNeeded == 0);
         SwdPacket foundPacket = packets.getNextPacket();
         if(null != foundPacket)
         {
             foundPacket.reportTo(out);
+            state.add(foundPacket);
         }
         return numBitsNeeded;
     }

@@ -412,7 +412,7 @@ public class BitStreamCracker
 
     private boolean checkIfDormantToSwd(int num)
     {
-        // dormant to SWD = at least 8x1 + (128 bit) 0100 1001  1100 1111  1001 0000  0100 0110
+        // dormant to SWD = at least 8x1 + (140 bit) 0100 1001  1100 1111  1001 0000  0100 0110
         //                                           1010 1001  1011 0100  1010 0001  0110 0001
         //                                           1001 0111  1111 0101  1011 1011  1100 0111
         //                                           0100 0101  0111 0000  0011 1101  1001 1000
@@ -429,61 +429,82 @@ public class BitStreamCracker
         if(
              (0 == bits.get(num +  0)) && (1 == bits.get(num +  1)) && (0 == bits.get(num +  2)) && (0 == bits.get(num +  3))
           && (1 == bits.get(num +  4)) && (0 == bits.get(num +  5)) && (0 == bits.get(num +  6)) && (1 == bits.get(num +  7))
+
           && (1 == bits.get(num +  8)) && (1 == bits.get(num +  9)) && (0 == bits.get(num + 10)) && (0 == bits.get(num + 11))
           && (1 == bits.get(num + 12)) && (1 == bits.get(num + 13)) && (1 == bits.get(num + 14)) && (1 == bits.get(num + 15))
+
           && (1 == bits.get(num + 16)) && (0 == bits.get(num + 17)) && (0 == bits.get(num + 18)) && (1 == bits.get(num + 19))
           && (0 == bits.get(num + 20)) && (0 == bits.get(num + 21)) && (0 == bits.get(num + 22)) && (0 == bits.get(num + 23))
+
           && (0 == bits.get(num + 24)) && (1 == bits.get(num + 25)) && (0 == bits.get(num + 26)) && (0 == bits.get(num + 27))
           && (0 == bits.get(num + 28)) && (1 == bits.get(num + 29)) && (1 == bits.get(num + 30)) && (0 == bits.get(num + 31))
 
+
+
           && (1 == bits.get(num + 32)) && (0 == bits.get(num + 33)) && (1 == bits.get(num + 34)) && (0 == bits.get(num + 35))
           && (1 == bits.get(num + 36)) && (0 == bits.get(num + 37)) && (0 == bits.get(num + 38)) && (1 == bits.get(num + 39))
+
           && (1 == bits.get(num + 40)) && (0 == bits.get(num + 41)) && (1 == bits.get(num + 42)) && (1 == bits.get(num + 43))
           && (0 == bits.get(num + 44)) && (1 == bits.get(num + 45)) && (0 == bits.get(num + 46)) && (0 == bits.get(num + 47))
+
           && (1 == bits.get(num + 48)) && (0 == bits.get(num + 49)) && (1 == bits.get(num + 50)) && (0 == bits.get(num + 51))
           && (0 == bits.get(num + 52)) && (0 == bits.get(num + 53)) && (0 == bits.get(num + 54)) && (1 == bits.get(num + 55))
+
           && (0 == bits.get(num + 56)) && (1 == bits.get(num + 57)) && (1 == bits.get(num + 58)) && (0 == bits.get(num + 59))
           && (0 == bits.get(num + 60)) && (0 == bits.get(num + 61)) && (0 == bits.get(num + 62)) && (1 == bits.get(num + 63))
 
+
+
           && (1 == bits.get(num + 64)) && (0 == bits.get(num + 65)) && (0 == bits.get(num + 66)) && (1 == bits.get(num + 67))
           && (0 == bits.get(num + 68)) && (1 == bits.get(num + 69)) && (1 == bits.get(num + 70)) && (1 == bits.get(num + 71))
+
           && (1 == bits.get(num + 72)) && (1 == bits.get(num + 73)) && (1 == bits.get(num + 74)) && (1 == bits.get(num + 75))
           && (0 == bits.get(num + 76)) && (1 == bits.get(num + 77)) && (0 == bits.get(num + 78)) && (1 == bits.get(num + 79))
+
           && (1 == bits.get(num + 80)) && (0 == bits.get(num + 81)) && (1 == bits.get(num + 82)) && (1 == bits.get(num + 83))
           && (1 == bits.get(num + 84)) && (0 == bits.get(num + 85)) && (1 == bits.get(num + 86)) && (1 == bits.get(num + 87))
+
           && (1 == bits.get(num + 88)) && (1 == bits.get(num + 89)) && (0 == bits.get(num + 90)) && (0 == bits.get(num + 91))
           && (0 == bits.get(num + 92)) && (1 == bits.get(num + 93)) && (1 == bits.get(num + 94)) && (1 == bits.get(num + 95))
 
+
+
           && (0 == bits.get(num + 96)) && (1 == bits.get(num + 97)) && (0 == bits.get(num + 98)) && (0 == bits.get(num + 99))
           && (0 == bits.get(num +100)) && (1 == bits.get(num +101)) && (0 == bits.get(num +102)) && (1 == bits.get(num +103))
+
           && (0 == bits.get(num +104)) && (1 == bits.get(num +105)) && (1 == bits.get(num +106)) && (1 == bits.get(num +107))
           && (0 == bits.get(num +108)) && (0 == bits.get(num +109)) && (0 == bits.get(num +110)) && (0 == bits.get(num +111))
+
           && (0 == bits.get(num +112)) && (0 == bits.get(num +113)) && (1 == bits.get(num +114)) && (1 == bits.get(num +115))
           && (1 == bits.get(num +116)) && (1 == bits.get(num +117)) && (0 == bits.get(num +118)) && (1 == bits.get(num +119))
+
           && (1 == bits.get(num +120)) && (0 == bits.get(num +121)) && (0 == bits.get(num +122)) && (1 == bits.get(num +123))
           && (1 == bits.get(num +124)) && (0 == bits.get(num +125)) && (0 == bits.get(num +126)) && (0 == bits.get(num +127))
 
+
+
           && (0 == bits.get(num +128)) && (0 == bits.get(num +129)) && (0 == bits.get(num +130)) && (0 == bits.get(num +131))
           && (0 == bits.get(num +132)) && (1 == bits.get(num +133)) && (0 == bits.get(num +134)) && (1 == bits.get(num +135))
+
           && (1 == bits.get(num +136)) && (0 == bits.get(num +137)) && (0 == bits.get(num +138)) && (0 == bits.get(num +139))
              )
         {
-            int nextNum = 140;
+            int nextNum = num + 140;
             while(nextNum < bits.size())
             {
-                if(1 == bits.get(num))
+                if(1 == bits.get(nextNum))
                 {
-                    num++;
+                    nextNum++;
                 }
                 else
                 {
                     break;
                 }
             }
-            if((nextNum-140) > 49)
+            if((nextNum -num -140) > 49)
             {
                 // Dormant to SWD
-                for(int i = 0; i < (31 + num); i++)
+                for(int i = 0; i < nextNum; i++)
                 {
                     bits.remove(0); // bits then shift forward
                 }

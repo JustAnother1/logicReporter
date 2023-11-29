@@ -7,12 +7,10 @@ public class WaitPacket extends RequestPacket
 
     public WaitPacket()
     {
-        // TODO Auto-generated constructor stub
     }
 
-    @Override
-    public void reportTo(PrintStream out)
+    protected String specificReport()
     {
-        reportRequestTo(out);
+        return ",ACK=WAIT";
     }
 }

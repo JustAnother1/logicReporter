@@ -166,12 +166,12 @@ public class BitStreamCracker
             {
                 // idle bit
                 bits.remove(0); // bits then shift forward
-                SwdPacket res = new IdleBits();
+                SwdPacket res = new IdleBits(1);
                 resStream.add(res);
                 return 0;
             }
         }
-        else if(num >= 8)
+        else if(num > 7)
         {
             // disconnect
             for(int i = 0; i < num; i++)
@@ -190,7 +190,7 @@ public class BitStreamCracker
             {
                 bits.remove(0); // bits then shift forward
             }
-            SwdPacket res = new IdleBits();
+            SwdPacket res = new IdleBits(num);
             resStream.add(res);
             return 0;
         }
@@ -429,63 +429,38 @@ public class BitStreamCracker
         if(
              (0 == bits.get(num +  0)) && (1 == bits.get(num +  1)) && (0 == bits.get(num +  2)) && (0 == bits.get(num +  3))
           && (1 == bits.get(num +  4)) && (0 == bits.get(num +  5)) && (0 == bits.get(num +  6)) && (1 == bits.get(num +  7))
-
           && (1 == bits.get(num +  8)) && (1 == bits.get(num +  9)) && (0 == bits.get(num + 10)) && (0 == bits.get(num + 11))
           && (1 == bits.get(num + 12)) && (1 == bits.get(num + 13)) && (1 == bits.get(num + 14)) && (1 == bits.get(num + 15))
-
           && (1 == bits.get(num + 16)) && (0 == bits.get(num + 17)) && (0 == bits.get(num + 18)) && (1 == bits.get(num + 19))
           && (0 == bits.get(num + 20)) && (0 == bits.get(num + 21)) && (0 == bits.get(num + 22)) && (0 == bits.get(num + 23))
-
           && (0 == bits.get(num + 24)) && (1 == bits.get(num + 25)) && (0 == bits.get(num + 26)) && (0 == bits.get(num + 27))
           && (0 == bits.get(num + 28)) && (1 == bits.get(num + 29)) && (1 == bits.get(num + 30)) && (0 == bits.get(num + 31))
-
-
-
           && (1 == bits.get(num + 32)) && (0 == bits.get(num + 33)) && (1 == bits.get(num + 34)) && (0 == bits.get(num + 35))
           && (1 == bits.get(num + 36)) && (0 == bits.get(num + 37)) && (0 == bits.get(num + 38)) && (1 == bits.get(num + 39))
-
           && (1 == bits.get(num + 40)) && (0 == bits.get(num + 41)) && (1 == bits.get(num + 42)) && (1 == bits.get(num + 43))
           && (0 == bits.get(num + 44)) && (1 == bits.get(num + 45)) && (0 == bits.get(num + 46)) && (0 == bits.get(num + 47))
-
           && (1 == bits.get(num + 48)) && (0 == bits.get(num + 49)) && (1 == bits.get(num + 50)) && (0 == bits.get(num + 51))
           && (0 == bits.get(num + 52)) && (0 == bits.get(num + 53)) && (0 == bits.get(num + 54)) && (1 == bits.get(num + 55))
-
           && (0 == bits.get(num + 56)) && (1 == bits.get(num + 57)) && (1 == bits.get(num + 58)) && (0 == bits.get(num + 59))
           && (0 == bits.get(num + 60)) && (0 == bits.get(num + 61)) && (0 == bits.get(num + 62)) && (1 == bits.get(num + 63))
-
-
-
           && (1 == bits.get(num + 64)) && (0 == bits.get(num + 65)) && (0 == bits.get(num + 66)) && (1 == bits.get(num + 67))
           && (0 == bits.get(num + 68)) && (1 == bits.get(num + 69)) && (1 == bits.get(num + 70)) && (1 == bits.get(num + 71))
-
           && (1 == bits.get(num + 72)) && (1 == bits.get(num + 73)) && (1 == bits.get(num + 74)) && (1 == bits.get(num + 75))
           && (0 == bits.get(num + 76)) && (1 == bits.get(num + 77)) && (0 == bits.get(num + 78)) && (1 == bits.get(num + 79))
-
           && (1 == bits.get(num + 80)) && (0 == bits.get(num + 81)) && (1 == bits.get(num + 82)) && (1 == bits.get(num + 83))
           && (1 == bits.get(num + 84)) && (0 == bits.get(num + 85)) && (1 == bits.get(num + 86)) && (1 == bits.get(num + 87))
-
           && (1 == bits.get(num + 88)) && (1 == bits.get(num + 89)) && (0 == bits.get(num + 90)) && (0 == bits.get(num + 91))
           && (0 == bits.get(num + 92)) && (1 == bits.get(num + 93)) && (1 == bits.get(num + 94)) && (1 == bits.get(num + 95))
-
-
-
           && (0 == bits.get(num + 96)) && (1 == bits.get(num + 97)) && (0 == bits.get(num + 98)) && (0 == bits.get(num + 99))
           && (0 == bits.get(num +100)) && (1 == bits.get(num +101)) && (0 == bits.get(num +102)) && (1 == bits.get(num +103))
-
           && (0 == bits.get(num +104)) && (1 == bits.get(num +105)) && (1 == bits.get(num +106)) && (1 == bits.get(num +107))
           && (0 == bits.get(num +108)) && (0 == bits.get(num +109)) && (0 == bits.get(num +110)) && (0 == bits.get(num +111))
-
           && (0 == bits.get(num +112)) && (0 == bits.get(num +113)) && (1 == bits.get(num +114)) && (1 == bits.get(num +115))
           && (1 == bits.get(num +116)) && (1 == bits.get(num +117)) && (0 == bits.get(num +118)) && (1 == bits.get(num +119))
-
           && (1 == bits.get(num +120)) && (0 == bits.get(num +121)) && (0 == bits.get(num +122)) && (1 == bits.get(num +123))
           && (1 == bits.get(num +124)) && (0 == bits.get(num +125)) && (0 == bits.get(num +126)) && (0 == bits.get(num +127))
-
-
-
           && (0 == bits.get(num +128)) && (0 == bits.get(num +129)) && (0 == bits.get(num +130)) && (0 == bits.get(num +131))
           && (0 == bits.get(num +132)) && (1 == bits.get(num +133)) && (0 == bits.get(num +134)) && (1 == bits.get(num +135))
-
           && (1 == bits.get(num +136)) && (0 == bits.get(num +137)) && (0 == bits.get(num +138)) && (0 == bits.get(num +139))
              )
         {
@@ -501,6 +476,12 @@ public class BitStreamCracker
                     break;
                 }
             }
+            if(nextNum == bits.size())
+            {
+                // just a bunch of 1's. This can go on for ever. We need an 0 to say anything.
+                numBitsMissing = 1;  // one 0 would be enough
+                return false;
+            }
             if((nextNum -num -140) > 49)
             {
                 // Dormant to SWD
@@ -514,11 +495,13 @@ public class BitStreamCracker
             }
             else
             {
+                // less than 50 bits
                 return false;
             }
         }
         else
         {
+            // wrong bit sequence
             return false;
         }
     }
@@ -660,7 +643,7 @@ public class BitStreamCracker
             // ACK : OK
             // read =         32bit data + 1 bit parity + turn
             // write = turn + 32bit data + 1 bit parity
-            if(12 + 34 < bits.size())
+            if(12 + 34 > bits.size())
             {
                 // not enough bits to decode packet
                 return (12 + 34) - bits.size();
@@ -734,6 +717,55 @@ public class BitStreamCracker
                 bits.remove(0); // bits then shift forward
             }
             resStream.add(res);
+        }
+        else if(  (1 == bits.get(9))
+               && (1 == bits.get(10))
+               && (1 == bits.get(11))
+               )
+        {
+            if(12 + 34 > bits.size())
+            {
+                // not enough bits to decode packet
+                return (12 + 34) - bits.size();
+            }
+            // ACK: Target idle
+            // this is OK for the TARGETSEL packet
+            if(  (true == isDP)
+              && (false == isRead)
+              && (3 == a2a3)
+              && (parity == 0) )
+            {
+                // TARGETSEL command
+                OkPacket res = new OkPacket();
+                res.setisDp(isDP);
+                res.setisRead(isRead);
+                res.setA2A3(a2a3);
+                res.setRequestParity(parity);
+                // write
+                long data = 0;
+                for(int i = 0; i < 32; i++)
+                {
+                    data = (data * 2) + bits.get(13 +i);
+                }
+                res.setData(data);
+                res.setDataParity(bits.get(13 + 32));
+                for(int i = 0; i < (12 + 34); i++)
+                {
+                    bits.remove(0); // bits then shift forward
+                }
+                resStream.add(res);
+            }
+            else
+            {
+                // invalid ACK
+                InvalidBits res = new InvalidBits();
+                for(int i = 0; i < 12; i++)
+                {
+                    res.add(bits.get(0));
+                    bits.remove(0); // bits then shift forward
+                }
+                resStream.add(res);
+            }
         }
         else
         {

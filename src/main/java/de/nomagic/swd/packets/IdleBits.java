@@ -4,15 +4,17 @@ import java.io.PrintStream;
 
 public class IdleBits extends SwdPacket
 {
+    private int numBits;
 
-    public IdleBits()
+    public IdleBits(int num)
     {
+        numBits = num;
     }
 
     @Override
     public void reportTo(PrintStream out)
     {
-        out.println("Idle bits");
+        out.println("Idle bits (" + numBits + ")");
     }
 
 }

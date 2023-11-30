@@ -121,7 +121,7 @@ public class SaleaDigitalChannel extends SampleSource
             log.debug("begin time: {} seconds", start_time);
 
             byte[] end_time = in.readNBytes(8);
-            double endTimeSeconds = bytesToDouble(end_time);
+            endTimeSeconds = bytesToDouble(end_time);
             log.debug("end time: {} seconds", endTimeSeconds);
 
             byte[] num_transitions = in.readNBytes(8);
@@ -161,8 +161,19 @@ public class SaleaDigitalChannel extends SampleSource
         try
         {
             readTimeBuf = in.readNBytes(8);
-            double readTime = bytesToDouble(readTimeBuf);
-            return readTime;
+            if(8 == readTimeBuf.length)
+            {
+                double readTime = bytesToDouble(readTimeBuf);
+                return readTime;
+            }
+            else
+            {
+                if(0 != readTimeBuf.length)
+                {
+                    log.trace("read {} bytes", readTimeBuf.length);
+                }
+                return endTimeSeconds;
+            }
         }
         catch(IOException e)
         {

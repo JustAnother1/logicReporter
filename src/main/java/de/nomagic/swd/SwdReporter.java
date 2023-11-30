@@ -118,11 +118,6 @@ public class SwdReporter
             {
                 nextCheck = nextCheck + decodeBits();
             }
-            // for testing only
-            if(i > 1000)
-            {
-                break;
-            }
         }
         // flush
         // flushing edges

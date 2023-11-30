@@ -20,9 +20,10 @@ import de.nomagic.swd.SwdReporter;
 
 public class ReporterMain
 {
-
     private String swdioFile = null;
     private String swclkFile = null;
+    private boolean reportEdges = false;
+    private boolean reportBits = false;
 
     public ReporterMain(String[] args)
     {
@@ -133,6 +134,8 @@ public class ReporterMain
         System.out.println("-h                           : print this message.");
         System.out.println("-swclk <logic analyzer file> : SWCLK channel file that will be reported on (required))");
         System.out.println("-swdio <logic analyzer file> : SWDIO channel file that will be reported on (required))");
+        System.out.println("-report_edges                : report all detected edges");
+        System.out.println("-report_bits                 : report all detected bits");
         System.out.println("-v                           : verbose output for even more messages use -v -v");
     }
 
@@ -155,6 +158,14 @@ public class ReporterMain
                 {
                     i++;
                     swdioFile = args[i];
+                }
+                else if(true == "-report_edges".equals(args[i]))
+                {
+                    reportEdges = true;
+                }
+                else if(true == "-report_bits".equals(args[i]))
+                {
+                    reportBits = true;
                 }
                 else if(true == "-v".equals(args[i]))
                 {
@@ -207,6 +218,8 @@ public class ReporterMain
             SwdReporter rep = new SwdReporter();
             rep.setSWDIO(swdioChannel);
             rep.setSWCLK(swclkChannel);
+            rep.setReportEdges(reportEdges);
+            rep.setReportBits(reportBits);
             return rep.reportTo(System.out);
         }
         catch (FileNotFoundException e)

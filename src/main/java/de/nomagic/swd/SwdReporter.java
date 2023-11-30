@@ -30,8 +30,6 @@ public class SwdReporter
     private BitStreamCracker bitToPackets;
     private PacketSequence packets;
 
-    private int progressCounter = 0;
-    private boolean report_progress = false;
     private boolean report_edge_level = false;
     private boolean report_bit_level = true;
 
@@ -50,6 +48,16 @@ public class SwdReporter
     public void setSWCLK(SaleaDigitalChannel swclkChannel)
     {
         swclk = swclkChannel;
+    }
+
+    public void setReportEdges(boolean val)
+    {
+        report_edge_level = val;
+    }
+
+    public void setReportBits(boolean val)
+    {
+        report_bit_level = val;
     }
 
     public boolean reportTo(PrintStream out) throws IOException
@@ -104,15 +112,6 @@ public class SwdReporter
                     edges.add(CLK_RISING_DATA_0);
                 }
                 lastStateSwclkHigh = true;
-            }
-            if(true == report_progress)
-            {
-                progressCounter++;
-                if(100 < progressCounter)
-                {
-                    out.append("*");
-                    progressCounter = 0;
-                }
             }
             if(i >= nextCheck)
             {

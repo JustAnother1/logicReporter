@@ -1,7 +1,5 @@
 package de.nomagic.swd.packets;
 
-import java.io.PrintStream;
-
 public class OkPacket extends RequestPacket
 {
     private long data;
@@ -13,7 +11,7 @@ public class OkPacket extends RequestPacket
 
     protected String specificReport()
     {
-        return ",ACK=OK,data=" + data + ", dpararty=" + dataParity;
+        return ",ACK=OK,data=" + String.format("0x%08X", data) + ", dpararty=" + dataParity;
     }
 
 

@@ -28,7 +28,6 @@ public class SwdReporter
     private PrintStream out;
     private swdState state;
     private BitStreamCracker bitToPackets;
-    private PacketSequence packets;
 
     private boolean report_edge_level = false;
     private boolean report_bit_level = true;
@@ -36,8 +35,7 @@ public class SwdReporter
     public SwdReporter()
     {
         state = new swdState();
-        packets = new PacketSequence();
-        bitToPackets = new BitStreamCracker(packets);
+        bitToPackets = new BitStreamCracker(state);
     }
 
     public void setSWDIO(SaleaDigitalChannel swdioChannel)
@@ -115,6 +113,7 @@ public class SwdReporter
             }
             if(i >= nextCheck)
             {
+                // TODO maybe check the decodeBits() return value and if it is too low then do the next check later -> performance
                 nextCheck = nextCheck + decodeBits();
             }
         }
@@ -123,15 +122,8 @@ public class SwdReporter
         decodeBits();
         // flushing last bits into packets
         bitToPackets.flush();
-        // flushing last packets
-        SwdPacket foundPacket = packets.getNextPacket();
-        while(null != foundPacket)
-        {
-            foundPacket.reportTo(out);
-            foundPacket = packets.getNextPacket();
-        }
 
-        out.append("End of recording");
+        out.println("End of recording");
         return true;
     }
 
@@ -164,12 +156,6 @@ public class SwdReporter
         {
             numBitsNeeded = bitToPackets.detectPackages();
         }while(numBitsNeeded == 0);
-        SwdPacket foundPacket = packets.getNextPacket();
-        if(null != foundPacket)
-        {
-            foundPacket.reportTo(out);
-            state.add(foundPacket);
-        }
         return numBitsNeeded;
     }
 

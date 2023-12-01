@@ -2,6 +2,7 @@ package de.nomagic.swd;
 
 import java.io.PrintStream;
 
+import de.nomagic.PacketSequence;
 import de.nomagic.swd.packets.Disconnect;
 import de.nomagic.swd.packets.DormantToSwd;
 import de.nomagic.swd.packets.FaultPacket;
@@ -15,7 +16,7 @@ import de.nomagic.swd.packets.SwdPacket;
 import de.nomagic.swd.packets.SwdToDormant;
 import de.nomagic.swd.packets.WaitPacket;
 
-public class swdState
+public class swdState implements PacketSequence
 {
     private PrintStream out;
 
@@ -30,12 +31,14 @@ public class swdState
 
     private lineState curLineStatus;
     private lineState lastLineStatus;
+    private long SELECT;
 
     public swdState()
     {
         out = null;
         curLineStatus = lineState.UNKNOWN;
         lastLineStatus = lineState.UNKNOWN;
+        SELECT = -1;
     }
 
     public void reportTo(PrintStream out)
@@ -80,10 +83,14 @@ public class swdState
         else if(nextPacket instanceof LineReset)
         {
             curLineStatus = lineState.SWD;
+            SELECT = 0;
         }
         else if(nextPacket instanceof OkPacket)
         {
             curLineStatus = lineState.SWD;
+            OkPacket okp = (OkPacket)nextPacket;
+            okp.setSELECT(SELECT);
+            SELECT = okp.getUpdatedSELECT();
         }
         else if(nextPacket instanceof SwdToDormant)
         {
@@ -93,6 +100,9 @@ public class swdState
         {
             curLineStatus = lineState.SWD;
         }
+
+        nextPacket.reportTo(out);
+
         if(curLineStatus != lastLineStatus)
         {
             if(null != out)
@@ -101,6 +111,7 @@ public class swdState
             }
             lastLineStatus = curLineStatus;
         }
+
     }
 
 }

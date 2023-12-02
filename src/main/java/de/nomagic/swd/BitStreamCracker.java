@@ -661,7 +661,11 @@ public class BitStreamCracker
                     long data = 0;
                     for(int i = 0; i < 32; i++)
                     {
-                        data = (data * 2) + bits.get(12 + i);
+                        // little endian
+                        if(1 == bits.get(12 + i))
+                        {
+                            data = data + ((long)(1) << i);
+                        }
                     }
                     res.setData(data);
                     res.setDataParity(bits.get(12 + 32));
@@ -672,7 +676,11 @@ public class BitStreamCracker
                     long data = 0;
                     for(int i = 0; i < 32; i++)
                     {
-                        data = (data * 2) + bits.get(13 +i);
+                        // little endian
+                        if(1 == bits.get(13 + i))
+                        {
+                            data = data + ((long)(1) << i);
+                        }
                     }
                     res.setData(data);
                     res.setDataParity(bits.get(13 + 32));

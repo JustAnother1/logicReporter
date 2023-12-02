@@ -33,7 +33,7 @@ public class OkPacket extends RequestPacket
                 {
                 case 0: switch((int)(SELECT & 0xf))
                         {
-                        case -1: buf.append("?DPIDR?DPIDR1?BASEPTR0?BASEPTR1?"); break;
+                        default: buf.append("???"); break;
                         case  0: buf.append("DPIDR"); break;
                         case  1: buf.append("DPIDR1"); break;
                         case  2: buf.append("BASEPTR0"); break;
@@ -59,9 +59,27 @@ public class OkPacket extends RequestPacket
             else
             {
                 long id = (SELECT & 0xff000000)>>24;
-                long ap_Addr = a2a3 * 4 + (SELECT & 0xf0)>>4;
+                int ap_Addr = (a2a3 * 4) + (int)(SELECT & 0xff0);
                 buf.append("AP(" + id + "):");
-                buf.append(String.format(" 0x%02X ", ap_Addr) );
+                switch(ap_Addr)
+                {
+                case 0 : buf.append(" CSW"); break;
+                case 4:
+                case 8: buf.append(" TAR"); break;
+                case 0xc: buf.append(" DRW"); break;
+                case 0x10: buf.append(" BD0"); break;
+                case 0x14: buf.append(" BD1"); break;
+                case 0x18: buf.append(" BD2"); break;
+                case 0x1c: buf.append(" BD3"); break;
+                case 0x20: buf.append(" MBT"); break;
+                case 0x30: buf.append(" T0TR"); break;
+                case 0xe0: buf.append(" CFG1"); break;
+                case 0xf0: buf.append(" BASE1"); break;
+                case 0xf4: buf.append(" CFG"); break;
+                case 0xf8: buf.append(" BASE"); break;
+                case 0xfc: buf.append(" IDR"); break;
+                }
+                buf.append(String.format("(0x%X) ", ap_Addr) );
                 buf.append("(a2a3 = " + a2a3 + ")");
             }
         }
@@ -90,9 +108,27 @@ public class OkPacket extends RequestPacket
             else
             {
                 long id = (SELECT & 0xff000000)>>24;
-                long ap_Addr = (a2a3 * 4) + ((SELECT & 0xf0)>>4);
+                int ap_Addr = (a2a3 * 4) + (int)(SELECT & 0xff0);
                 buf.append("AP(" + id + "):");
-                buf.append(String.format(" 0x%02X ", ap_Addr) );
+                switch(ap_Addr)
+                {
+                case 0 : buf.append(" CSW"); break;
+                case 4:
+                case 8: buf.append(" TAR"); break;
+                case 0xc: buf.append(" DRW"); break;
+                case 0x10: buf.append(" BD0"); break;
+                case 0x14: buf.append(" BD1"); break;
+                case 0x18: buf.append(" BD2"); break;
+                case 0x1c: buf.append(" BD3"); break;
+                case 0x20: buf.append(" MBT"); break;
+                case 0x30: buf.append(" T0TR"); break;
+                case 0xe0: buf.append(" CFG1"); break;
+                case 0xf0: buf.append(" BASE1"); break;
+                case 0xf4: buf.append(" CFG"); break;
+                case 0xf8: buf.append(" BASE"); break;
+                case 0xfc: buf.append(" IDR"); break;
+                }
+                buf.append(String.format("(0x%X) ", ap_Addr) );
                 buf.append("(a2a3 = " + a2a3 + ")");
             }
         }

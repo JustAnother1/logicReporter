@@ -113,7 +113,6 @@ public class SwdReporter
             }
             if(i >= nextCheck)
             {
-                // TODO maybe check the decodeBits() return value and if it is too low then do the next check later -> performance
                 nextCheck = nextCheck + decodeBits();
             }
         }

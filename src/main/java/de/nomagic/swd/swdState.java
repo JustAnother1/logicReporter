@@ -32,6 +32,8 @@ public class swdState implements PacketSequence
     private lineState curLineStatus;
     private lineState lastLineStatus;
     private long SELECT;
+    private MemoryAccessPortDecoder memAp;
+    private int memApAddr;
 
     public swdState()
     {
@@ -39,11 +41,14 @@ public class swdState implements PacketSequence
         curLineStatus = lineState.UNKNOWN;
         lastLineStatus = lineState.UNKNOWN;
         SELECT = -1;
+        memApAddr = -1;
+        memAp = new MemoryAccessPortDecoder();
     }
 
     public void reportTo(PrintStream out)
     {
         this.out = out;
+        memAp.reportTo(out);
     }
 
     public void add(SwdPacket nextPacket)
@@ -52,6 +57,8 @@ public class swdState implements PacketSequence
         {
             return;
         }
+
+
         if(nextPacket instanceof Disconnect)
         {
             curLineStatus = lineState.SWD_NOT_CONNECTED;
@@ -91,6 +98,7 @@ public class swdState implements PacketSequence
             OkPacket okp = (OkPacket)nextPacket;
             okp.setSELECT(SELECT);
             SELECT = okp.getUpdatedSELECT();
+            memAp.setSELECT(SELECT);
         }
         else if(nextPacket instanceof SwdToDormant)
         {
@@ -110,6 +118,43 @@ public class swdState implements PacketSequence
                 out.println("state change: " + lastLineStatus + " -> " + curLineStatus);
             }
             lastLineStatus = curLineStatus;
+        }
+
+        // decode read /write AP
+        if(nextPacket instanceof OkPacket)
+        {
+            OkPacket okp = (OkPacket)nextPacket;
+            if(false == okp.getIsDp())
+            {
+                // AP packet
+                if(memApAddr != ((SELECT&0xff000000)>>24))
+                {
+                    int previousAP = memApAddr;
+                    memApAddr = (int)((SELECT & 0xff000000) >>24);
+                    if(-1 == previousAP)
+                    {
+                        // first access to AP
+                        out.println("using Address Port " + memApAddr);
+                    }
+                    else
+                    {
+                        out.println("chnaging from AP " + previousAP + "to Address Port " + memApAddr);
+                    }
+                }
+                memAp.add(okp);
+            }
+            else
+            {
+                DP_Register dpReg = okp.getDPRegType();
+                if(DP_Register.RESEND == dpReg)
+                {
+                    memAp.addResend(okp);
+                }
+                else if(DP_Register.RDBUFF == dpReg)
+                {
+                    memAp.addRdBuff(okp);
+                }
+            }
         }
 
     }

@@ -44,9 +44,19 @@ public abstract class RequestPacket extends SwdPacket
         this.isDP = isDP;
     }
 
+    public boolean getIsDp()
+    {
+        return isDP;
+    }
+
     public void setisRead(boolean isRead)
     {
         this.isRead = isRead;
+    }
+
+    public boolean getIsRead()
+    {
+        return isRead;
     }
 
     public void setA2A3(int a2a3)

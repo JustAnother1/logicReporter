@@ -3,6 +3,7 @@ package de.nomagic.swd;
 import java.io.PrintStream;
 
 import de.nomagic.PacketSequence;
+import de.nomagic.logic.ValueDecoder;
 import de.nomagic.swd.packets.Disconnect;
 import de.nomagic.swd.packets.DormantToSwd;
 import de.nomagic.swd.packets.FaultPacket;
@@ -35,14 +36,14 @@ public class swdState implements PacketSequence
     private MemoryAccessPortDecoder memAp;
     private int memApAddr;
 
-    public swdState()
+    public swdState(ValueDecoder valDec)
     {
         out = null;
         curLineStatus = lineState.UNKNOWN;
         lastLineStatus = lineState.UNKNOWN;
         SELECT = -1;
         memApAddr = -1;
-        memAp = new MemoryAccessPortDecoder();
+        memAp = new MemoryAccessPortDecoder(valDec);
     }
 
     public void reportTo(PrintStream out)
@@ -157,6 +158,12 @@ public class swdState implements PacketSequence
             }
         }
 
+    }
+
+    public void printSummary()
+    {
+        out.println("accessed Memory:");
+        memAp.printMemoryMap(out);
     }
 
 }

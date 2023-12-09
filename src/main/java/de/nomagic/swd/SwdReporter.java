@@ -7,9 +7,8 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.nomagic.PacketSequence;
 import de.nomagic.logic.SaleaDigitalChannel;
-import de.nomagic.swd.packets.SwdPacket;
+import de.nomagic.logic.ValueDecoder;
 
 public class SwdReporter
 {
@@ -34,8 +33,10 @@ public class SwdReporter
 
     public SwdReporter()
     {
-        state = new swdState();
-        bitToPackets = new BitStreamCracker(state);
+        ValueDecoder valDec = new ValueDecoder();
+        valDec.readTransationsFrom("arm_cortex_m_registers.txt");
+        state = new swdState(valDec);
+        bitToPackets = new BitStreamCracker(state, valDec);
     }
 
     public void setSWDIO(SaleaDigitalChannel swdioChannel)
@@ -123,6 +124,8 @@ public class SwdReporter
         bitToPackets.flush();
 
         out.println("End of recording");
+        // summary
+        state.printSummary();
         return true;
     }
 

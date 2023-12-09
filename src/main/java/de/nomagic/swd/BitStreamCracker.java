@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.nomagic.PacketSequence;
+import de.nomagic.logic.ValueDecoder;
 import de.nomagic.swd.packets.Disconnect;
 import de.nomagic.swd.packets.DormantToSwd;
 import de.nomagic.swd.packets.FaultPacket;
@@ -26,9 +27,12 @@ public class BitStreamCracker
     private Vector<Integer> bits = new Vector<Integer>();
 
     private int numBitsMissing;
+    private long packetNumber = 0;
+    private ValueDecoder valDec;
 
-    public BitStreamCracker(PacketSequence packets)
+    public BitStreamCracker(PacketSequence packets, ValueDecoder valDec)
     {
+        this.valDec = valDec;
         if(null == packets)
         {
             log.error("No PacketSequence provided!");
@@ -650,7 +654,9 @@ public class BitStreamCracker
             }
             else
             {
-                OkPacket res = new OkPacket();
+                OkPacket res = new OkPacket(packetNumber);
+                packetNumber++;
+                res.addDecoder(valDec);
                 res.setisDp(isDP);
                 res.setisRead(isRead);
                 res.setA2A3(a2a3);
@@ -744,7 +750,8 @@ public class BitStreamCracker
               && (parity == 0) )
             {
                 // TARGETSEL command
-                OkPacket res = new OkPacket();
+                OkPacket res = new OkPacket(packetNumber);
+                packetNumber++;
                 res.setisDp(isDP);
                 res.setisRead(isRead);
                 res.setA2A3(a2a3);

@@ -24,7 +24,7 @@ class BitStreamCrackerTest
     @Test
     void test_no_packetSource()
     {
-        BitStreamCracker cut = new BitStreamCracker(null);
+        BitStreamCracker cut = new BitStreamCracker(null, null);
         assertNotNull(cut);
     }
 
@@ -37,7 +37,7 @@ class BitStreamCrackerTest
     void test_Packet_wait()
     {
         PacketSequenceMock ps = new PacketSequenceMock();
-        BitStreamCracker cut = new BitStreamCracker(ps);
+        BitStreamCracker cut = new BitStreamCracker(ps, null);
 
         cut.add_one();  // start
         cut.add_zero(); // 0 = DP; 1 = AP
@@ -65,7 +65,7 @@ class BitStreamCrackerTest
     void test_Packet_fault()
     {
         PacketSequenceMock ps = new PacketSequenceMock();
-        BitStreamCracker cut = new BitStreamCracker(ps);
+        BitStreamCracker cut = new BitStreamCracker(ps, null);
 
         cut.add_one();  // start
         cut.add_zero(); // 0 = DP; 1 = AP
@@ -93,7 +93,7 @@ class BitStreamCrackerTest
     void test_idleBits()
     {
         PacketSequenceMock ps = new PacketSequenceMock();
-        BitStreamCracker cut = new BitStreamCracker(ps);
+        BitStreamCracker cut = new BitStreamCracker(ps, null);
 
         cut.add_zero();
         cut.add_zero();
@@ -121,7 +121,7 @@ class BitStreamCrackerTest
     void test_SWD_to_Dormant()
     {
         PacketSequenceMock ps = new PacketSequenceMock();
-        BitStreamCracker cut = new BitStreamCracker(ps);
+        BitStreamCracker cut = new BitStreamCracker(ps, null);
 
         for(int i = 0; i < 50; i++)
         {
@@ -160,7 +160,7 @@ class BitStreamCrackerTest
     void test_JTAG_to_dormant()
     {
         PacketSequenceMock ps = new PacketSequenceMock();
-        BitStreamCracker cut = new BitStreamCracker(ps);
+        BitStreamCracker cut = new BitStreamCracker(ps, null);
 
         cut.add_one();
         cut.add_one();
@@ -219,7 +219,7 @@ class BitStreamCrackerTest
     void test_disconnect()
     {
         PacketSequenceMock ps = new PacketSequenceMock();
-        BitStreamCracker cut = new BitStreamCracker(ps);
+        BitStreamCracker cut = new BitStreamCracker(ps, null);
         for(int i = 0; i < 8; i++)
         {
             cut.add_zero();
@@ -236,7 +236,7 @@ class BitStreamCrackerTest
     void test_JTAG_to_SWD()
     {
         PacketSequenceMock ps = new PacketSequenceMock();
-        BitStreamCracker cut = new BitStreamCracker(ps);
+        BitStreamCracker cut = new BitStreamCracker(ps, null);
 
         cut.add_zero();
         cut.add_one();
@@ -270,7 +270,7 @@ class BitStreamCrackerTest
     void test_lineReset()
     {
         PacketSequenceMock ps = new PacketSequenceMock();
-        BitStreamCracker cut = new BitStreamCracker(ps);
+        BitStreamCracker cut = new BitStreamCracker(ps, null);
         for(int i = 0; i < 50; i++)
         {
             cut.add_one();
@@ -288,7 +288,7 @@ class BitStreamCrackerTest
     void test_emptyFlush()
     {
         PacketSequenceMock ps = new PacketSequenceMock();
-        BitStreamCracker cut = new BitStreamCracker(ps);
+        BitStreamCracker cut = new BitStreamCracker(ps, null);
         assertEquals(9, cut.detectPackages());
         cut.flush();
         SwdPacket res = ps.getNextPacket();

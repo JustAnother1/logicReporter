@@ -1,0 +1,40 @@
+# Format = address,short name,long name #no , at end !
+0xE0001000,DWT_CTRL
+0xE000101C,DWT_PCSR,Program Counter Sampe Register
+0xE0001020,DWT_COMP0,Comparator Register
+0xE0001024,DWT_MASK0,Comparator Mask Register
+0xE0001028,DWT_FUNCTION0
+0xE0001030,DWT_COMP1
+0xE0001038,DWT_FUNCTION1
+0xE0001FBC,DWT_DEVARCH(ARMv8)
+0xE0002000,BP_CTRL
+0xE0002008,BP_COMP0
+0xE000E008,ACTLR,Auxiliary Control Register
+0xE000E010,SYST_CSR,SysTick Control and Status Register
+0xE000E014,SYST_RVR,SysTick Reload Value Register
+0xE000E018,SYST_CVR,SysTick Current Value Register
+0xE000E01C,SYST_CALIB,SysTick Calibration Value Register
+0xE000E100,NVIC_ISER,Interrupt Set-Enable Register
+0xE000E180,NVIC_ICER,Interrupt Clear-Enable Register
+0xE000E200,NVIC_ISPR,Interrupt Set-Pending Register
+0xE000E280,NVIC_ICPR,Interrupt Clear-Pending Register
+0xE000ED00,CPUID
+0xE000ED04,ICSR,Interrupt Control and State Register
+0xE000ED08,VTOR,Vector Table Offset Register (optional)
+0xE000ED0C,AIRCR,Application Interrupt and Reset Control Register
+0xE000ED10,SCR,System Control Register
+0xE000ED14,CCR,Configuration and Control Register
+0xE000ED1C, SHPR2,System Handler Priority Register 2
+0xE000ED20, SHPR3,System Handler Priority Register 3
+0xE000ED24,SHCSR,System Handler Conrol and State Register
+0xE000ED30,DFSR,Debug Fault Status Register
+0xE000ED90,MPU_TYPE
+0xE000ED94,MPU_CTRL
+0xE000ED98,MPU_RNR,MPU Region Number Reister
+0xE000ED9C,MPU_RBAR,MPU Region Base Address Register
+0xE000EDA0,MPU_RASR,MPU Region Atribute and Size Register
+0xE000EDF0,DHCSR,Debug Halting Control and Status Register
+0xE000EDF4,DCRSR,Debug Core Register Selector Register
+0xE000EDF8,DCRDR,Debug Core Register Data Register
+0xE000EDFC,DEMCR,Debug Exception and Monitor Control Register
+

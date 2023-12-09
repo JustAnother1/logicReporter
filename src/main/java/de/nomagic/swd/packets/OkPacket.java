@@ -2,21 +2,25 @@ package de.nomagic.swd.packets;
 
 import java.io.PrintStream;
 
+import de.nomagic.logic.ValueDecoder;
 import de.nomagic.swd.AP_Register;
 import de.nomagic.swd.DP_Register;
 
 public class OkPacket extends RequestPacket
 {
+    private final long number;
     private long data;
     private int dataParity;
     private long SELECT = -1;
     private AP_Register apReg = AP_Register.UNKNOWN;
     private DP_Register dpReg = DP_Register.UNKNOWN;
+    private ValueDecoder valDec = null;
 
     // TODO check that parity is correct
 
-    public OkPacket()
+    public OkPacket(long packetNumber)
     {
+        number = packetNumber;
     }
 
     protected String specificReport()
@@ -139,6 +143,19 @@ public class OkPacket extends RequestPacket
         }
 
         buf.append(" data=" + String.format("0x%08X", data) );
+        if(AP_Register.TAR == apReg)
+        {
+            String desc = valDec.getShortNameFor(data);
+            if(null != desc)
+            {
+                buf.append(" = " + desc);
+            }
+            desc = valDec.getLongNameFor(data);
+            if(null != desc)
+            {
+                buf.append(" (" + desc + ")");
+            }
+        }
 
         out.println(buf.toString());
     }
@@ -185,5 +202,15 @@ public class OkPacket extends RequestPacket
         {
             return SELECT;
         }
+    }
+
+    public long getNumber()
+    {
+        return number;
+    }
+
+    public void addDecoder(ValueDecoder valDec)
+    {
+        this.valDec = valDec;
     }
 }

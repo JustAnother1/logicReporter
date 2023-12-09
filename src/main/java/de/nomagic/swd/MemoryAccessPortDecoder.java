@@ -18,6 +18,7 @@ public class MemoryAccessPortDecoder
     private long ActiveAddress = 0;
     private boolean readActive = false;
     private boolean writeActive = false;
+    private boolean addressAutoIncrement = false;
     private HashMap<Long, Long> memoryReadMap = new HashMap<Long, Long>();
     private HashMap<Long, Long> memoryWriteMap = new HashMap<Long, Long>();
     private final ValueDecoder valDec;
@@ -54,6 +55,10 @@ public class MemoryAccessPortDecoder
                      {
                          readActive = true;
                          ActiveAddress = TAR;
+                     }
+                     if(true == addressAutoIncrement)
+                     {
+                         TAR = TAR + 4;
                      }
                      break;
 
@@ -123,7 +128,16 @@ public class MemoryAccessPortDecoder
         {
             switch(reg)
             {
-            case CSW: CSW = okp.getData(); break;
+            case CSW: CSW = okp.getData();
+                      if(0 == (CSW & ~0x10))
+                      {
+                          addressAutoIncrement = false;
+                      }
+                      else
+                      {
+                          addressAutoIncrement = true;
+                      }
+                      break;
             case TAR: TAR = okp.getData(); break;
             case DRW: if(true == writeActive)
                       {
@@ -134,6 +148,10 @@ public class MemoryAccessPortDecoder
                       {
                           writeActive = true;
                           ActiveAddress = TAR;
+                      }
+                      if(true == addressAutoIncrement)
+                      {
+                          TAR = TAR + 4;
                       }
                       break;
             case BD0: if(true == writeActive)

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import de.nomagic.logic.ValueDecoder;
 import de.nomagic.swd.packets.OkPacket;
@@ -12,16 +13,13 @@ import de.nomagic.swd.packets.OkPacket;
 public class MemoryAccessPortDecoder
 {
     private PrintStream out;
-    private long SELECT;
     private long TAR = 0;
     private long CSW = 0;
-    private long ActiveAddress = 0;
-    private boolean readActive = false;
-    private boolean writeActive = false;
     private boolean addressAutoIncrement = false;
     private HashMap<Long, Long> memoryReadMap = new HashMap<Long, Long>();
     private HashMap<Long, Long> memoryWriteMap = new HashMap<Long, Long>();
     private final ValueDecoder valDec;
+    private Vector<AP_Transfer> activeTransfers = new Vector<AP_Transfer>();
 
     public MemoryAccessPortDecoder(ValueDecoder valDec)
     {
@@ -33,82 +31,114 @@ public class MemoryAccessPortDecoder
         this.out = out;
     }
 
-    public void setSELECT(long SELECT)
-    {
-        this.SELECT = SELECT;
-    }
-
     public void add(OkPacket okp)
     {
         AP_Register reg = okp.getAPRegType();
         boolean read = okp.getIsRead();
+        AP_Transfer t;
         if(true == read)
         {
+            // reading
             switch(reg)
             {
-            case DRW:if(true == readActive)
-                     {
-                         reportRead(okp.getNumber(), ActiveAddress, okp.getData());
-                         ActiveAddress = TAR;
-                     }
-                     else
-                     {
-                         readActive = true;
-                         ActiveAddress = TAR;
-                     }
-                     if(true == addressAutoIncrement)
-                     {
-                         TAR = TAR + 4;
-                     }
-                     break;
+            case DRW:
+                if(true == activeTransfers.isEmpty())
+                {
+                    // first transfer -> ignore data
+                }
+                else
+                {
+                    t = activeTransfers.elementAt(0);
+                    activeTransfers.remove(0);
+                    t.setData(okp.getData());
+                    reportTransfer(t);
+                }
+                t = new AP_Transfer();
+                t.setToReadTransfer();
+                t.setPacketNumber(okp.getNumber());
+                t.setAddress(TAR);
+                activeTransfers.add(t);
+                if(true == addressAutoIncrement)
+                {
+                    TAR = TAR + 4;
+                }
+                break;
 
-            case BD0:if(true == readActive)
-                     {
-                         reportRead(okp.getNumber(), ActiveAddress, okp.getData());
-                         ActiveAddress = TAR;
-                     }
-                     else
-                     {
-                         readActive = true;
-                         ActiveAddress = TAR;
-                     }
-                     break;
+            case BD0:
+                if(true == activeTransfers.isEmpty())
+                {
+                    // first transfer -> ignore data
+                }
+                else
+                {
+                    t = activeTransfers.elementAt(0);
+                    activeTransfers.remove(0);
+                    t.setData(okp.getData());
+                    reportTransfer(t);
+                }
+                t = new AP_Transfer();
+                t.setToReadTransfer();
+                t.setPacketNumber(okp.getNumber());
+                t.setAddress(TAR);
+                activeTransfers.add(t);
+                break;
 
-            case BD1:if(true == readActive)
-                     {
-                         reportRead(okp.getNumber(), ActiveAddress, okp.getData());
-                         ActiveAddress = TAR + 4;
-                     }
-                     else
-                     {
-                         readActive = true;
-                         ActiveAddress = TAR + 4;
-                     }
-                     break;
+            case BD1:
+                if(true == activeTransfers.isEmpty())
+                {
+                    // first transfer -> ignore data
+                }
+                else
+                {
+                    t = activeTransfers.elementAt(0);
+                    activeTransfers.remove(0);
+                    t.setData(okp.getData());
+                    reportTransfer(t);
+                }
+                t = new AP_Transfer();
+                t.setToReadTransfer();
+                t.setPacketNumber(okp.getNumber());
+                t.setAddress(TAR + 4);
+                activeTransfers.add(t);
+                break;
 
-            case BD2:if(true == readActive)
-                     {
-                         reportRead(okp.getNumber(), ActiveAddress, okp.getData());
-                         ActiveAddress = TAR + 8;
-                     }
-                     else
-                     {
-                         readActive = true;
-                         ActiveAddress = TAR + 8;
-                     }
-                     break;
+            case BD2:
+                if(true == activeTransfers.isEmpty())
+                {
+                    // first transfer -> ignore data
+                }
+                else
+                {
+                    t = activeTransfers.elementAt(0);
+                    activeTransfers.remove(0);
+                    t.setData(okp.getData());
+                    reportTransfer(t);
+                }
+                t = new AP_Transfer();
+                t.setToReadTransfer();
+                t.setPacketNumber(okp.getNumber());
+                t.setAddress(TAR + 8);
+                activeTransfers.add(t);
+                break;
 
-            case BD3:if(true == readActive)
-                     {
-                         reportRead(okp.getNumber(), ActiveAddress, okp.getData());
-                         ActiveAddress = TAR + 12;
-                     }
-                     else
-                     {
-                         readActive = true;
-                         ActiveAddress = TAR + 12;
-                     }
-                     break;
+            case BD3:
+                if(true == activeTransfers.isEmpty())
+                {
+                    // first transfer -> ignore data
+                }
+                else
+                {
+                    t = activeTransfers.elementAt(0);
+                    activeTransfers.remove(0);
+                    t.setData(okp.getData());
+                    reportTransfer(t);
+                }
+                t = new AP_Transfer();
+                t.setToReadTransfer();
+                t.setPacketNumber(okp.getNumber());
+                t.setAddress(TAR + 12);
+                activeTransfers.add(t);
+                break;
 
             default: break;
             /*
@@ -126,6 +156,7 @@ public class MemoryAccessPortDecoder
         }
         else
         {
+            // writing
             switch(reg)
             {
             case CSW: CSW = okp.getData();
@@ -138,65 +169,51 @@ public class MemoryAccessPortDecoder
                           addressAutoIncrement = true;
                       }
                       break;
+
             case TAR: TAR = okp.getData(); break;
-            case DRW: if(true == writeActive)
-                      {
-                          reportWrite(okp.getNumber(), ActiveAddress, okp.getData());
-                          ActiveAddress = TAR;
-                      }
-                      else
-                      {
-                          writeActive = true;
-                          ActiveAddress = TAR;
-                      }
+
+            case DRW: t = new AP_Transfer();
+                      t.setToWriteTransfer();
+                      t.setPacketNumber(okp.getNumber());
+                      t.setData(okp.getData());
+                      t.setAddress(TAR);
+                      reportTransfer(t);
                       if(true == addressAutoIncrement)
                       {
                           TAR = TAR + 4;
                       }
                       break;
-            case BD0: if(true == writeActive)
-                      {
-                          reportWrite(okp.getNumber(), ActiveAddress, okp.getData());
-                          ActiveAddress = TAR;
-                      }
-                      else
-                      {
-                          writeActive = true;
-                          ActiveAddress = TAR;
-                      }
+
+            case BD0: t = new AP_Transfer();
+                      t.setToWriteTransfer();
+                      t.setPacketNumber(okp.getNumber());
+                      t.setData(okp.getData());
+                      t.setAddress(TAR);
+                      reportTransfer(t);
                       break;
-            case BD1: if(true == writeActive)
-                      {
-                          reportWrite(okp.getNumber(), ActiveAddress, okp.getData());
-                          ActiveAddress = TAR;
-                      }
-                      else
-                      {
-                          writeActive = true;
-                          ActiveAddress = TAR;
-                      }
+
+            case BD1: t = new AP_Transfer();
+                      t.setToWriteTransfer();
+                      t.setPacketNumber(okp.getNumber());
+                      t.setData(okp.getData());
+                      t.setAddress(TAR + 4);
+                      reportTransfer(t);
                       break;
-            case BD2: if(true == writeActive)
-                      {
-                          reportWrite(okp.getNumber(), ActiveAddress, okp.getData());
-                          ActiveAddress = TAR;
-                      }
-                      else
-                      {
-                          writeActive = true;
-                          ActiveAddress = TAR;
-                      }
+
+            case BD2: t = new AP_Transfer();
+                      t.setToWriteTransfer();
+                      t.setPacketNumber(okp.getNumber());
+                      t.setData(okp.getData());
+                      t.setAddress(TAR + 8);
+                      reportTransfer(t);
                       break;
-            case BD3: if(true == writeActive)
-                      {
-                          reportWrite(okp.getNumber(), ActiveAddress, okp.getData());
-                          ActiveAddress = TAR;
-                      }
-                      else
-                      {
-                          writeActive = true;
-                          ActiveAddress = TAR;
-                      }
+
+            case BD3: t = new AP_Transfer();
+                      t.setToWriteTransfer();
+                      t.setPacketNumber(okp.getNumber());
+                      t.setData(okp.getData());
+                      t.setAddress(TAR + 12);
+                      reportTransfer(t);
                       break;
 
             default: break;
@@ -222,17 +239,29 @@ public class MemoryAccessPortDecoder
 
     public void addRdBuff(OkPacket okp)
     {
-        if(true == readActive)
+        if(true == activeTransfers.isEmpty())
         {
-            reportRead(okp.getNumber(), ActiveAddress, okp.getData());
-            readActive = false;
+            // no finished transfer -> ignore data
         }
-        if(true == writeActive)
+        else
         {
-            reportWrite(okp.getNumber(), ActiveAddress, okp.getData());
-            writeActive = false;
+            AP_Transfer t = activeTransfers.elementAt(0);
+            activeTransfers.remove(0);
+            t.setData(okp.getData());
+            reportTransfer(t);
         }
-        ActiveAddress = 0;
+    }
+
+    private void reportTransfer(AP_Transfer t)
+    {
+        if(t.isWrite())
+        {
+            reportWrite(t.getPacketNumber(), t.getAddress(), t.getData());
+        }
+        else
+        {
+            reportRead(t.getPacketNumber(), t.getAddress(), t.getData());
+        }
     }
 
     private void reportRead(long number, long address, long data)

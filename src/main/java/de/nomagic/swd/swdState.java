@@ -99,7 +99,6 @@ public class swdState implements PacketSequence
             OkPacket okp = (OkPacket)nextPacket;
             okp.setSELECT(SELECT);
             SELECT = okp.getUpdatedSELECT();
-            memAp.setSELECT(SELECT);
         }
         else if(nextPacket instanceof SwdToDormant)
         {

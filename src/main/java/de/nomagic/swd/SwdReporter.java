@@ -145,7 +145,17 @@ public class SwdReporter
             int curEdge = edges.get(0);
             if(0 > curEdge)
             {
-                out.println("Signal pause of " + Math.abs(curEdge) + " ms");
+                int time = Math.abs(curEdge);
+                if(1000 > time)
+                {
+                    out.println("Signal pause of " + time + " ms");
+                }
+                else
+                {
+                    int sec = time/1000;
+                    time = time%1000;
+                    out.println("Signal pause of " + sec  + " seconds and " + time + " ms");
+                }
             }
             else
             {

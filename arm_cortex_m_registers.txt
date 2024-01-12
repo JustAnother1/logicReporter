@@ -24,8 +24,8 @@
 0xE000ED0C,AIRCR,Application Interrupt and Reset Control Register
 0xE000ED10,SCR,System Control Register
 0xE000ED14,CCR,Configuration and Control Register
-0xE000ED1C, SHPR2,System Handler Priority Register 2
-0xE000ED20, SHPR3,System Handler Priority Register 3
+0xE000ED1C,SHPR2,System Handler Priority Register 2
+0xE000ED20,SHPR3,System Handler Priority Register 3
 0xE000ED24,SHCSR,System Handler Conrol and State Register
 0xE000ED30,DFSR,Debug Fault Status Register
 0xE000ED90,MPU_TYPE

@@ -1,6 +1,6 @@
 # Format = address,short name,long name #no , at end !
 0xE0001000,DWT_CTRL
-0xE000101C,DWT_PCSR,Program Counter Sampe Register
+0xE000101C,DWT_PCSR,Program Counter Sample Register
 0xE0001020,DWT_COMP0,Comparator Register
 0xE0001024,DWT_MASK0,Comparator Mask Register
 0xE0001028,DWT_FUNCTION0

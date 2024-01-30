@@ -22,12 +22,28 @@ public class ValueDecoder
 
     public String getShortNameFor(long value)
     {
-        return shortNames.get(value);
+        String res = shortNames.get(value);
+        if(null == res)
+        {
+            return "";
+        }
+        else
+        {
+            return res;
+        }
     }
 
     public String getLongNameFor(long value)
     {
-        return longNames.get(value);
+        String res = longNames.get(value);
+        if(null == res)
+        {
+            return "";
+        }
+        else
+        {
+            return res;
+        }
     }
 
     private long decode(String value)

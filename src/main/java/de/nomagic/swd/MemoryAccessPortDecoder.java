@@ -326,7 +326,15 @@ public class MemoryAccessPortDecoder
         {
             Long addr = it.next();
             Long val = memoryWriteMap.get(addr);
-            out.println(String.format("0x%08X", addr) + String.format(" = 0x%08X", val));
+            String desc = valDec.getLongNameFor(addr);
+            if(0 < desc.length())
+            {
+                out.println(String.format("0x%08X (", addr) + desc + String.format(") = 0x%08X", val));
+            }
+            else
+            {
+                out.println(String.format("0x%08X", addr) + String.format(" = 0x%08X", val));
+            }
         }
     }
 }

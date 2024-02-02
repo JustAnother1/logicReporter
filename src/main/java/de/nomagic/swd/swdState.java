@@ -35,6 +35,12 @@ public class swdState implements PacketSequence
     private long SELECT;
     private MemoryAccessPortDecoder memAp;
     private int memApAddr;
+    private boolean reportDP = false;
+    private boolean reportAP = false;
+    private long numPackets = 0;
+    private long numOpPackets = 0;
+    private long numApPackets = 0;
+    private long numDpPackets = 0;
 
     public swdState(ValueDecoder valDec)
     {
@@ -52,17 +58,91 @@ public class swdState implements PacketSequence
         memAp.reportTo(out);
     }
 
+    public void setConfiguration(SwdConfiguration cfg)
+    {
+        if(null == cfg)
+        {
+            return;
+        }
+        boolean val = cfg.shallReportDP();
+        if(true == val)
+        {
+            reportDP = true;
+        }
+        else
+        {
+            reportDP = false;
+        }
+        val = cfg.shallReportAP();
+        if(true == val)
+        {
+            reportAP = true;
+        }
+        else
+        {
+            reportAP = false;
+        }
+    }
+
     public void add(SwdPacket nextPacket)
     {
         if(null == nextPacket)
         {
             return;
         }
+        boolean shouldBeReported = true;
+        numPackets++;
 
-
-        if(nextPacket instanceof Disconnect)
+        if(nextPacket instanceof OkPacket)
         {
-            curLineStatus = lineState.SWD_NOT_CONNECTED;
+            numOpPackets++;
+            curLineStatus = lineState.SWD;
+            OkPacket okp = (OkPacket)nextPacket;
+            okp.setSELECT(SELECT);
+            okp.process();
+            if(false == okp.getIsDp())
+            {
+                // AP packet
+                memAp.add(okp);
+                numApPackets++;
+                if(false == reportAP)
+                {
+                    shouldBeReported = false;
+                }
+                if(memApAddr != ((SELECT&0xff000000)>>24))
+                {
+                    int previousAP = memApAddr;
+                    memApAddr = (int)((SELECT & 0xff000000) >>24);
+                    if(-1 == previousAP)
+                    {
+                        // first access to AP
+                        out.println("using Address Port " + memApAddr);
+                    }
+                    else
+                    {
+                        out.println("chnaging from AP " + previousAP + "to Address Port " + memApAddr);
+                    }
+                }
+            }
+            else
+            {
+                // DP packet
+                numDpPackets++;
+                if(false == reportDP)
+                {
+                    shouldBeReported = false;
+                }
+                SELECT = okp.getUpdatedSELECT();
+                DP_Register dpReg = okp.getDPRegType();
+                if(DP_Register.RESEND == dpReg)
+                {
+                    memAp.addResend(okp);
+                }
+                else if(DP_Register.RDBUFF == dpReg)
+                {
+                    memAp.addRdBuff(okp);
+                }
+            }
         }
         else if(nextPacket instanceof DormantToSwd)
         {
@@ -93,12 +173,9 @@ public class swdState implements PacketSequence
             curLineStatus = lineState.SWD;
             SELECT = 0;
         }
-        else if(nextPacket instanceof OkPacket)
+        else if(nextPacket instanceof Disconnect)
         {
-            curLineStatus = lineState.SWD;
-            OkPacket okp = (OkPacket)nextPacket;
-            okp.setSELECT(SELECT);
-            SELECT = okp.getUpdatedSELECT();
+            curLineStatus = lineState.SWD_NOT_CONNECTED;
         }
         else if(nextPacket instanceof SwdToDormant)
         {
@@ -109,7 +186,10 @@ public class swdState implements PacketSequence
             curLineStatus = lineState.SWD;
         }
 
-        nextPacket.reportTo(out);
+        if(true == shouldBeReported)
+        {
+            nextPacket.reportTo(out);
+        }
 
         if(curLineStatus != lastLineStatus)
         {
@@ -119,48 +199,14 @@ public class swdState implements PacketSequence
             }
             lastLineStatus = curLineStatus;
         }
-
-        // decode read /write AP
-        if(nextPacket instanceof OkPacket)
-        {
-            OkPacket okp = (OkPacket)nextPacket;
-            if(false == okp.getIsDp())
-            {
-                // AP packet
-                if(memApAddr != ((SELECT&0xff000000)>>24))
-                {
-                    int previousAP = memApAddr;
-                    memApAddr = (int)((SELECT & 0xff000000) >>24);
-                    if(-1 == previousAP)
-                    {
-                        // first access to AP
-                        out.println("using Address Port " + memApAddr);
-                    }
-                    else
-                    {
-                        out.println("chnaging from AP " + previousAP + "to Address Port " + memApAddr);
-                    }
-                }
-                memAp.add(okp);
-            }
-            else
-            {
-                DP_Register dpReg = okp.getDPRegType();
-                if(DP_Register.RESEND == dpReg)
-                {
-                    memAp.addResend(okp);
-                }
-                else if(DP_Register.RDBUFF == dpReg)
-                {
-                    memAp.addRdBuff(okp);
-                }
-            }
-        }
-
     }
 
     public void printSummary()
     {
+        out.println("found " + numPackets   + " SWD Packets");
+        out.println("found " + numOpPackets + " OK Packets");
+        out.println("found " + numDpPackets + " DP Packets");
+        out.println("found " + numApPackets + " AP Packets");
         out.println("accessed Memory:");
         memAp.printMemoryMap(out);
     }

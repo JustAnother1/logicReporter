@@ -22,6 +22,7 @@ public abstract class SampleSource
         return valid;
     }
 
+    public abstract long getNumberEdges();
     protected abstract double getNextEndTime();
 
     protected void initializeSampleQueue(boolean initiallyHigh)

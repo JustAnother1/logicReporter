@@ -7,15 +7,12 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.nomagic.logic.SaleaDigitalChannel;
+import de.nomagic.logic.SampleSource;
 import de.nomagic.logic.ValueDecoder;
 
 public class SwdReporter
 {
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
-
-    private SaleaDigitalChannel swdio;
-    private SaleaDigitalChannel swclk;
 
     // recoded bit Stream
     private static final int CLK_FALLING_DATA_0   = 0;
@@ -27,53 +24,39 @@ public class SwdReporter
     private PrintStream out;
     private swdState state;
     private BitStreamCracker bitToPackets;
+    private SwdConfiguration cfg;
+    private boolean report_bit_level = false;
 
-    private boolean report_edge_level = false;
-    private boolean report_bit_level = true;
 
-    public SwdReporter()
+    public SwdReporter(SwdConfiguration cfg)
     {
+        this.cfg = cfg;
         ValueDecoder valDec = new ValueDecoder();
         valDec.readTransationsFrom("arm_cortex_m_registers.txt");
         state = new swdState(valDec);
         bitToPackets = new BitStreamCracker(state, valDec);
     }
 
-    public void setSWDIO(SaleaDigitalChannel swdioChannel)
-    {
-        swdio = swdioChannel;
-    }
-
-    public void setSWCLK(SaleaDigitalChannel swclkChannel)
-    {
-        swclk = swclkChannel;
-    }
-
-    public void setReportEdges(boolean val)
-    {
-        report_edge_level = val;
-    }
-
-    public void setReportBits(boolean val)
-    {
-        report_bit_level = val;
-    }
 
     public boolean reportTo(PrintStream out) throws IOException
     {
-        if((null == out) || (null == swdio) || (null == swclk))
+        if((null == out) || (null == cfg))
         {
             log.error("no output stream or data streams provided !");
             return false;
         }
         this.out = out;
         state.reportTo(out);
-        if((false == swclk.isValid()) || (false == swdio.isValid()))
+        state.setConfiguration(cfg);
+        if(false == cfg.isValid())
         {
-            log.error("data is invalid");
+            log.error("configuration or data is invalid");
             return false;
         }
-
+        SampleSource swclk = cfg.get_SWCLK();
+        SampleSource swdio = cfg.get_SWDIO();
+        boolean report_edge_level = cfg.shallReportEdgeLevel();
+        report_bit_level = cfg.shallReportBitValues();
         double now_time = 0.0;
         boolean lastStateSwclkHigh = swclk.isHighAt(0.0);
         int nextCheck = 0;

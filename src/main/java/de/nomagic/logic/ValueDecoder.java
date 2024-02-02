@@ -38,7 +38,7 @@ public class ValueDecoder
         String res = longNames.get(value);
         if(null == res)
         {
-            return "";
+            return getShortNameFor(value);
         }
         else
         {
@@ -60,6 +60,12 @@ public class ValueDecoder
             String line = reader.readLine();
             while (line != null)
             {
+                if(line.contains("#"))
+                {
+                    // remove comments
+                    String[] res = line.split("#");
+                    line = res[0];
+                }
                 String[] parts = line.split(",");
                 if(2 == parts.length)
                 {

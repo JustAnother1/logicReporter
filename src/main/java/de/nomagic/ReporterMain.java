@@ -2,7 +2,6 @@ package de.nomagic;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,15 +14,12 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
-import de.nomagic.logic.SaleaDigitalChannel;
+import de.nomagic.swd.SwdConfiguration;
 import de.nomagic.swd.SwdReporter;
 
 public class ReporterMain
 {
-    private String swdioFile = null;
-    private String swclkFile = null;
-    private boolean reportEdges = false;
-    private boolean reportBits = false;
+    private SwdConfiguration cfg = new SwdConfiguration();
 
     public ReporterMain(String[] args)
     {
@@ -136,6 +132,8 @@ public class ReporterMain
         System.out.println("-swdio <logic analyzer file> : SWDIO channel file that will be reported on (required))");
         System.out.println("-report_edges                : report all detected edges");
         System.out.println("-report_bits                 : report all detected bits");
+        System.out.println("-report_DP                   : report all Debug Port packets");
+        System.out.println("-report_AP                   : report all Access Port packets");
         System.out.println("-v                           : verbose output for even more messages use -v -v");
     }
 
@@ -152,20 +150,28 @@ public class ReporterMain
                 else if(true == "-swclk".equals(args[i]))
                 {
                     i++;
-                    swclkFile = args[i];
+                    cfg.add_SWCLK(args[i]);
                 }
                 else if(true == "-swdio".equals(args[i]))
                 {
                     i++;
-                    swdioFile = args[i];
+                    cfg.add_SWDIO(args[i]);
                 }
                 else if(true == "-report_edges".equals(args[i]))
                 {
-                    reportEdges = true;
+                    cfg.setReportEdges(true);
                 }
                 else if(true == "-report_bits".equals(args[i]))
                 {
-                    reportBits = true;
+                    cfg.setReportBits(true);
+                }
+                else if(true == "-report_DP".equals(args[i]))
+                {
+                    cfg.setReportDebugPortPackets(true);
+                }
+                else if(true == "-report_AP".equals(args[i]))
+                {
+                    cfg.setReportAccessPortPackets(true);
                 }
                 else if(true == "-v".equals(args[i]))
                 {
@@ -182,44 +188,13 @@ public class ReporterMain
                 return false;
             }
         }
-        if((null == swclkFile) || (null == swdioFile))
-        {
-            // providing a signal file is required.
-            return false;
-        }
-        // OK
-        return true;
+        return cfg.isValid();
     }
 
     private boolean processFile()
     {
         try {
-            // SWCLK
-            System.out.println("SWCLK: ");
-            System.out.println("Reading " + swclkFile + " ...");
-            FileInputStream swclkFin = new FileInputStream(swclkFile);
-            SaleaDigitalChannel swclkChannel = new SaleaDigitalChannel(swclkFin);
-            if(false == swclkChannel.isValid())
-            {
-                System.err.println("File is not valid !");
-                return false;
-            }
-
-            // SWDIO
-            System.out.println("SWDIO: ");
-            System.out.println("Reading " + swdioFile + " ...");
-            FileInputStream swdioFin = new FileInputStream(swdioFile);
-            SaleaDigitalChannel swdioChannel = new SaleaDigitalChannel(swdioFin);
-            if(false == swdioChannel.isValid())
-            {
-                System.err.println("File is not valid !");
-                return false;
-            }
-            SwdReporter rep = new SwdReporter();
-            rep.setSWDIO(swdioChannel);
-            rep.setSWCLK(swclkChannel);
-            rep.setReportEdges(reportEdges);
-            rep.setReportBits(reportBits);
+            SwdReporter rep = new SwdReporter(cfg);
             return rep.reportTo(System.out);
         }
         catch (FileNotFoundException e)

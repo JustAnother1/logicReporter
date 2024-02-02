@@ -268,16 +268,16 @@ public class MemoryAccessPortDecoder
     {
         String Address = String.format("0x%08X", address);
         String desc = valDec.getShortNameFor(address);
-        if( null != desc)
+        if(0 < desc.length())
         {
             Address = Address + " = " + desc;
         }
         desc = valDec.getLongNameFor(address);
-        if( null != desc)
+        if(0 < desc.length())
         {
             Address = Address + " (" + desc + ")";
         }
-        out.println(number + ": read " + String.format("0x%08X", data) + " from " + Address);
+        out.println(number + ": read  " + String.format("0x%08X", data) + " from " + Address);
         memoryReadMap.put(address, data);
     }
 
@@ -285,16 +285,16 @@ public class MemoryAccessPortDecoder
     {
         String Address = String.format("0x%08X", address);
         String desc = valDec.getShortNameFor(address);
-        if( null != desc)
+        if(0 < desc.length())
         {
             Address = Address + " = " + desc;
         }
         desc = valDec.getLongNameFor(address);
-        if( null != desc)
+        if(0 < desc.length())
         {
             Address = Address + " (" + desc + ")";
         }
-        out.println(number + ": wrote " + String.format("0x%08X", data) + " to " + Address);
+        out.println(number + ": wrote " + String.format("0x%08X", data) + "  to  " + Address);
         memoryWriteMap.put(address, data);
     }
 

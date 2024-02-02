@@ -130,6 +130,7 @@ public class ReporterMain
         System.out.println("-h                           : print this message.");
         System.out.println("-swclk <logic analyzer file> : SWCLK channel file that will be reported on (required))");
         System.out.println("-swdio <logic analyzer file> : SWDIO channel file that will be reported on (required))");
+        System.out.println("-regtrans <file name>        : add a register translation file");
         System.out.println("-report_edges                : report all detected edges");
         System.out.println("-report_bits                 : report all detected bits");
         System.out.println("-report_DP                   : report all Debug Port packets");
@@ -156,6 +157,11 @@ public class ReporterMain
                 {
                     i++;
                     cfg.add_SWDIO(args[i]);
+                }
+                else if(true == "-regtrans".equals(args[i]))
+                {
+                    i++;
+                    cfg.addRegisterTranslationFileName(args[i]);
                 }
                 else if(true == "-report_edges".equals(args[i]))
                 {

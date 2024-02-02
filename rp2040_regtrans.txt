@@ -1,0 +1,24 @@
+# Format = address,short name,long name #no , at end !
+#QSPI Bank IO
+0x40018000,GPIO_QSPI_SCLK_STATUS
+0x40018004,GPIO_QSPI_SCLK_CTRL
+0x40018008,GPIO_QSPI_SS_STATUS
+0x4001800C,GPIO_QSPI_SS_CTRL
+0x40018010,GPIO_QSPI_SD0_STATUS
+0x40018014,GPIO_QSPI_SD0_CTRL
+0x40018018,GPIO_QSPI_SD1_STATUS
+0x4001801C,GPIO_QSPI_SD1_CTRL
+0x40018020,GPIO_QSPI_SD2_STATUS
+0x40018024,GPIO_QSPI_SD2_CTRL
+0x40018028,GPIO_QSPI_SD3_STATUS
+0x4001802C,GPIO_QSPI_SD3_CTRL
+0x40018030,INTR,Raw Interrupts
+0x40018034,PROC0_INTE,Interrupt Enable for proc0
+0x40018038,PROC0_INTF,Interrupt Force for proc0
+0x4001803C,PROC0_INTS,Interrupt status after masking and forcing for proc0
+0x40018040,PROC1_INTE,Interrupt Enable for proc1
+0x40018044,PROC1_INTF,Interrupt Force for proc1
+0x40018048,PROC1_INTS,Interrupt status after masking and forcing for proc1
+0x4001804C,DORMANT_WAKE_INTE,Interrupt Enable for dormant_wake
+0x40018050,DORMANT_WAKE_INTF,Interrupt Force for dormant_wake
+0x40018054,DORMANT_WAKE_INTS,Interrupt status after masking and forcing for dormant_wake

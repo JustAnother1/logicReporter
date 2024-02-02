@@ -2,6 +2,7 @@ package de.nomagic.swd;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Vector;
 
 import de.nomagic.logic.SaleaDigitalChannel;
 import de.nomagic.logic.SampleSource;
@@ -15,6 +16,7 @@ public class SwdConfiguration
     private boolean reportAP = false;
     private SampleSource swclk = null;
     private SampleSource swdio = null;
+    Vector<String> translationFiles = new Vector<String>();
 
     public SwdConfiguration()
     {
@@ -134,6 +136,23 @@ public class SwdConfiguration
     public boolean shallReportAP()
     {
         return reportAP;
+    }
+
+    public void addRegisterTranslationFileName(String fileName)
+    {
+        translationFiles.add(fileName);
+    }
+
+    public String[] getRegisterTranslationFileNames()
+    {
+        if(translationFiles.isEmpty())
+        {
+            return new String[0];
+        }
+        else
+        {
+            return translationFiles.toArray(new String[0]);
+        }
     }
 
 }

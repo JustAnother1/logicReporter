@@ -32,7 +32,11 @@ public class SwdReporter
     {
         this.cfg = cfg;
         ValueDecoder valDec = new ValueDecoder();
-        valDec.readTransationsFrom("arm_cortex_m_registers.txt");
+        String[] translations = cfg.getRegisterTranslationFileNames();
+        for(int i = 0; i < translations.length; i++)
+        {
+            valDec.readTransationsFrom(translations[i]);
+        }
         state = new swdState(valDec);
         bitToPackets = new BitStreamCracker(state, valDec);
     }

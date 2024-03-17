@@ -33,6 +33,28 @@ public abstract class RequestPacket extends SwdPacket
             buf.append("Writing,");
         }
         buf.append("a23=" + a2a3);
+        if(true == isDP)
+        {
+            switch(a2a3)
+            {
+            case 0: buf.append("(DPIDR/DPIDR1/BASEPTR0/BASEPTR1)"); break;
+            case 1: buf.append("(CTRL-STAT/DLCR/DLPIDR/EVENTSTAT/SELECT1/TARGETID)"); break;
+            case 2: buf.append("(SELECT/RESEND)"); break;
+            case 3: buf.append("(RDBUFF/TARGETSEL)"); break;
+            default: buf.append("(invalid)"); break;
+            }
+        }
+        else
+        {
+            switch(a2a3)
+            {
+            case 0: buf.append("(CSW/BD0/MBT/T0RT/CFG1)"); break;
+            case 1: buf.append("(TAR/BD1/CFG)"); break;
+            case 2: buf.append("(BD2/BASE)"); break;
+            case 3: buf.append("(DRW/BD3/IDR)"); break;
+            default: buf.append("(invalid)"); break;
+            }
+        }
         buf.append(",parity=" + requestParity);
         buf.append(specificReport());
         buf.append(")");

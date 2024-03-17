@@ -277,7 +277,7 @@ public class MemoryAccessPortDecoder
         {
             Address = Address + " (" + desc + ")";
         }
-        out.println(number + ": read  " + String.format("0x%08X", data) + " from " + Address);
+        out.println(String.format("%6d : read  0x%08X from %s", number, data, Address));
         memoryReadMap.put(address, data);
     }
 
@@ -294,7 +294,7 @@ public class MemoryAccessPortDecoder
         {
             Address = Address + " (" + desc + ")";
         }
-        out.println(number + ": wrote " + String.format("0x%08X", data) + "  to  " + Address);
+        out.println(String.format("%6d : wrote 0x%08X  to  %s", number, data, Address));
         memoryWriteMap.put(address, data);
     }
 

@@ -15,7 +15,7 @@ class TestSaleaeDigitalChannel {
     @Test
     void testSaleaDigitalChannel_NULL()
     {
-        SaleaDigitalChannel cut = new SaleaDigitalChannel(null);
+        SaleaDigitalChannel cut = new SaleaDigitalChannel(null, 0);
         assertFalse(cut.isValid());
     }
 
@@ -26,7 +26,7 @@ class TestSaleaeDigitalChannel {
         try
         {
             fin = new FileInputStream("ref/digital_5.bin");
-            SaleaDigitalChannel cut = new SaleaDigitalChannel(fin);
+            SaleaDigitalChannel cut = new SaleaDigitalChannel(fin, 0);
             assertTrue(cut.isValid());
         }
         catch (FileNotFoundException e)
@@ -42,7 +42,7 @@ class TestSaleaeDigitalChannel {
         try
         {
             fin = new FileInputStream("ref/digital_5.bin");
-            SaleaDigitalChannel cut = new SaleaDigitalChannel(fin);
+            SaleaDigitalChannel cut = new SaleaDigitalChannel(fin, 0);
             assertTrue(cut.isValid());
             assertEquals(1950, cut.getNumberEdges());
         }
@@ -59,7 +59,7 @@ class TestSaleaeDigitalChannel {
         try
         {
             fin = new FileInputStream("ref/digital_5.bin");
-            SaleaDigitalChannel cut = new SaleaDigitalChannel(fin);
+            SaleaDigitalChannel cut = new SaleaDigitalChannel(fin, 0);
             assertTrue(cut.isValid());
             assertTrue(cut.isHighAt(0.0));
         }
@@ -70,7 +70,7 @@ class TestSaleaeDigitalChannel {
         try
         {
             fin = new FileInputStream("ref/digital_4.bin");
-            SaleaDigitalChannel cut = new SaleaDigitalChannel(fin);
+            SaleaDigitalChannel cut = new SaleaDigitalChannel(fin, 0);
             assertTrue(cut.isValid());
             assertFalse(cut.isHighAt(0.0));
         }
@@ -87,7 +87,7 @@ class TestSaleaeDigitalChannel {
         try
         {
             fin = new FileInputStream("ref/digital_5.bin");
-            SaleaDigitalChannel cut = new SaleaDigitalChannel(fin);
+            SaleaDigitalChannel cut = new SaleaDigitalChannel(fin, 0);
             assertTrue(cut.isValid());
             assertEquals(2.114134240, cut.getTimeOfEdgeAfter(0.0));
         }

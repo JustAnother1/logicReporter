@@ -1,5 +1,6 @@
 package de.nomagic.swd;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Vector;
@@ -28,8 +29,9 @@ public class SwdConfiguration
         {
             System.out.println("SWDIO: ");
             System.out.println("Reading " + swdioFile + " ...");
-            FileInputStream swdioFin = new FileInputStream(swdioFile);
-            SaleaDigitalChannel swdioChannel = new SaleaDigitalChannel(swdioFin);
+            File swdFile = new File(swdioFile);
+            FileInputStream swdioFin = new FileInputStream(swdFile);
+            SaleaDigitalChannel swdioChannel = new SaleaDigitalChannel(swdioFin, swdFile.length());
             if(false == swdioChannel.isValid())
             {
                 System.err.println("SWDIO File is not valid !");
@@ -53,8 +55,9 @@ public class SwdConfiguration
         {
             System.out.println("SWCLK: ");
             System.out.println("Reading " + swclkFile + " ...");
-            FileInputStream swclkFin = new FileInputStream(swclkFile);
-            SaleaDigitalChannel swclkChannel = new SaleaDigitalChannel(swclkFin);
+            File swdFile = new File(swclkFile);
+            FileInputStream swclkFin = new FileInputStream(swdFile);
+            SaleaDigitalChannel swclkChannel = new SaleaDigitalChannel(swclkFin, swdFile.length());
             if(false == swclkChannel.isValid())
             {
                 System.err.println("SWCLK File is not valid !");

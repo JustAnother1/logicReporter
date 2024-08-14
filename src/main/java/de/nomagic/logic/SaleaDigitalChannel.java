@@ -28,7 +28,7 @@ public class SaleaDigitalChannel extends SampleSource
     private InputStream in;
     private double endTimeSeconds;
 
-    public SaleaDigitalChannel(InputStream in)
+    public SaleaDigitalChannel(InputStream in, long fileSize)
     {
         super();
         this.in = in;
@@ -128,6 +128,20 @@ public class SaleaDigitalChannel extends SampleSource
             ByteBuffer n_buffer = ByteBuffer.wrap(num_transitions);
             n_buffer.order(ByteOrder.LITTLE_ENDIAN);
             transitions = n_buffer.getLong();
+
+            if(1 > transitions)
+            {
+                if(1 > fileSize)
+                {
+                    valid = false;
+                    return;
+                }
+                else
+                {
+                    log.debug("file size: {} (header = 44 bytes, each edge = 8 bytes)", fileSize);
+                    transitions = (fileSize - 44) / 8;
+                }
+            }
             log.debug("transitions: {}", transitions);
 
             if(1 > transitions)

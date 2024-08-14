@@ -59,6 +59,12 @@ public class SwdReporter
         }
         SampleSource swclk = cfg.get_SWCLK();
         SampleSource swdio = cfg.get_SWDIO();
+        if(swdio.getNumberEdges() >= swclk.getNumberEdges())
+        {
+            // that can not be right
+            log.error("more edges on SWDIO than on SWCLK. That makes no sence, right?");
+            return false;
+        }
         boolean report_edge_level = cfg.shallReportEdgeLevel();
         report_bit_level = cfg.shallReportBitValues();
         double now_time = 0.0;

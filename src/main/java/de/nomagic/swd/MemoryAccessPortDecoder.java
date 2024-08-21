@@ -7,6 +7,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import de.nomagic.logic.Direction;
 import de.nomagic.logic.ValueDecoder;
 import de.nomagic.swd.packets.OkPacket;
 
@@ -278,6 +279,7 @@ public class MemoryAccessPortDecoder
             Address = Address + " (" + desc + ")";
         }
         out.println(String.format("%6d : read  0x%08X from %s", number, data, Address));
+        out.println(valDec.parseData(Direction.READ, address, data));
         memoryReadMap.put(address, data);
     }
 
@@ -295,6 +297,7 @@ public class MemoryAccessPortDecoder
             Address = Address + " (" + desc + ")";
         }
         out.println(String.format("%6d : wrote 0x%08X  to  %s", number, data, Address));
+        out.println(valDec.parseData(Direction.WRITE, address, data));
         memoryWriteMap.put(address, data);
     }
 
@@ -314,7 +317,6 @@ public class MemoryAccessPortDecoder
         {
             Long addr = it.next();
             Long val = memoryReadMap.get(addr);
-            // out.println(String.format("0x%08X", addr) + String.format(" = 0x%08X", val));
             String desc = valDec.getLongNameFor(addr);
             if(0 < desc.length())
             {

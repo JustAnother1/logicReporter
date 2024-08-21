@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
@@ -15,6 +16,9 @@ public class ValueDecoder
 
     private HashMap<Long,String> longNames = new HashMap<Long,String>();
     private HashMap<Long,String> shortNames = new HashMap<Long,String>();
+
+    private HashMap<Long, ArrayList<BitFieldRule>> readBitRules = new HashMap<Long,ArrayList<BitFieldRule>>();
+    private HashMap<Long,ArrayList<BitFieldRule>> writeBitRules = new HashMap<Long,ArrayList<BitFieldRule>>();
 
     public ValueDecoder()
     {
@@ -54,6 +58,7 @@ public class ValueDecoder
 
     public void readTransationsFrom(String filename)
     {
+        long registerAddress = 0;
         int num = 0;
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filename));
@@ -66,25 +71,84 @@ public class ValueDecoder
                     String[] res = line.split("#");
                     line = res[0];
                 }
-                String[] parts = line.split(",");
-                if(2 == parts.length)
+                if(line.startsWith("0x"))
                 {
-                    long val = decode(parts[0]);
-                    shortNames.put(val, parts[1]);
-                    num ++;
+                    String[] parts = line.split(",");
+                    if(2 == parts.length)
+                    {
+                        registerAddress = decode(parts[0]);
+                        shortNames.put(registerAddress, parts[1]);
+                        num ++;
+                    }
+                    else if(3 == parts.length)
+                    {
+                        registerAddress= decode(parts[0]);
+                        shortNames.put(registerAddress, parts[1]);
+                        longNames.put(registerAddress, parts[2]);
+                        num++;
+                    }
+                    else
+                    {
+                        // ignore this line
+                    }
                 }
-                else if(3 == parts.length)
+                else if(line.startsWith("R,"))
                 {
-                    long val = decode(parts[0]);
-                    shortNames.put(val, parts[1]);
-                    longNames.put(val, parts[2]);
-                    num++;
+                    // read
+                    String[] parts = line.substring(2).split(",");
+                    BitFieldRule aRule = new BitFieldRule(parts);
+                    if(aRule.isValid())
+                    {
+                        ArrayList<BitFieldRule> rules = readBitRules.get(registerAddress);
+                        if(null == rules)
+                        {
+                            rules = new ArrayList<BitFieldRule>();
+                        }
+                        rules.add(aRule);
+                        readBitRules.put(registerAddress, rules);
+                    }
                 }
-                else
+                else if(line.startsWith("W,"))
                 {
-                    // ignore this line
+                    // write
+                    String[] parts = line.substring(2).split(",");
+                    BitFieldRule aRule = new BitFieldRule(parts);
+                    if(aRule.isValid())
+                    {
+                        ArrayList<BitFieldRule> rules = writeBitRules.get(registerAddress);
+                        if(null == rules)
+                        {
+                            rules = new ArrayList<BitFieldRule>();
+                        }
+                        rules.add(aRule);
+                        writeBitRules.put(registerAddress, rules);
+                    }
                 }
-
+                else if(line.startsWith("B,"))
+                {
+                    // read and write
+                    String[] parts = line.substring(2).split(",");
+                    BitFieldRule aRule = new BitFieldRule(parts);
+                    if(aRule.isValid())
+                    {
+                        // read
+                        ArrayList<BitFieldRule> rules = readBitRules.get(registerAddress);
+                        if(null == rules)
+                        {
+                            rules = new ArrayList<BitFieldRule>();
+                        }
+                        rules.add(aRule);
+                        readBitRules.put(registerAddress, rules);
+                        // write
+                        rules = writeBitRules.get(registerAddress);
+                        if(null == rules)
+                        {
+                            rules = new ArrayList<BitFieldRule>();
+                        }
+                        rules.add(aRule);
+                        writeBitRules.put(registerAddress, rules);
+                    }
+                }
                 line = reader.readLine();
             }
             reader.close();
@@ -98,5 +162,51 @@ public class ValueDecoder
             e.printStackTrace();
         }
         log.trace("read {} translations from {}", num, filename);
+    }
+
+    public String parseData(Direction dir, long address, long value)
+    {
+        if(Direction.READ == dir)
+        {
+            ArrayList<BitFieldRule> rules = readBitRules.get(address);
+            if(null != rules)
+            {
+                StringBuffer sb = new StringBuffer();
+                for(int i = 0; i < rules.size(); i++)
+                {
+                    BitFieldRule curRule = rules.get(i);
+                    String res = curRule.reportOn(value);
+                    sb.append(res);
+                }
+                return sb.toString();
+            }
+            else
+            {
+                return "";
+            }
+        }
+        else if(Direction.WRITE == dir)
+        {
+            ArrayList<BitFieldRule> rules = writeBitRules.get(address);
+            if(null != rules)
+            {
+                StringBuffer sb = new StringBuffer();
+                for(int i = 0; i < rules.size(); i++)
+                {
+                    BitFieldRule curRule = rules.get(i);
+                    String res = curRule.reportOn(value);
+                    sb.append(res);
+                }
+                return sb.toString();
+            }
+            else
+            {
+                return "";
+            }
+        }
+        else
+        {
+            return "ERROR: invalid direction !";
+        }
     }
 }

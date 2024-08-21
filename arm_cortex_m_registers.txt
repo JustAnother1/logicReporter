@@ -1,40 +1,392 @@
-# Format = address,short name,long name #no , at end !
+# Format Register = address,short name,long name #no , at end !
+# Format bit field in Register = RWB, lowestBitIndex, numBits, fieldName, value, description, value, description
 0xE0001000,DWT_CTRL
+R,28,4,NUMCOMP,0,no comparator support
 0xE000101C,DWT_PCSR,Program Counter Sample Register
+R,0,32,EIASAMPLE
 0xE0001020,DWT_COMP0,Comparator Register
+B,0,32,COMP
 0xE0001024,DWT_MASK0,Comparator Mask Register
+B,0,5,MASK
 0xE0001028,DWT_FUNCTION0
+B,0,4,FUNCTION,4,PC watchpoint event(instruction address)),5,watchpoint event(RO),6,watchpoint event(WO),7,watchpoint event(RW)
+R,24,1,MATCHED,0,comparator has matched,1,comparator has not matched
 0xE0001030,DWT_COMP1
+B,0,32,COMP
+0xE0001034,DWT_MASK0,Comparator Mask Register
+B,0,5,MASK
 0xE0001038,DWT_FUNCTION1
+B,0,4,FUNCTION,4,PC watchpoint event(instruction address)),5,watchpoint event(RO),6,watchpoint event(WO),7,watchpoint event(RW)
+R,24,1,MATCHED,0,comparator has matched,1,comparator has not matched
 0xE0001FBC,DWT_DEVARCH(ARMv8)
 0xE0002000,BP_CTRL
+B,0,1,ENABLE,0,BPU is disabled,1,BPU is enabled
+W,1,1,KEY,0,ignore write,1,execute write
+R,4,4,NUM_CODE,0,comparators are not supported
 0xE0002008,BP_COMP0
+B,0,1,ENABLE,0,comparator disabled,1,comparator enabled
+B,2,27,COMP
+B,30,2,BP_MATCH,0,no breakpoint matching,1,breakpoint in lower halfword,2,breakpoint in upper halfword,3,breakpoint in both upper and lower halfword
 0xE000E008,ACTLR,Auxiliary Control Register
 0xE000E010,SYST_CSR,SysTick Control and Status Register
+B,0,1,ENABLE,0,counter is disabled,1,counter is operating
+B,1,1,TICKINT,0,count to 0 does not affect the SysTick exception status,1,count to 0 chnages the SysTick exception status to pending
+B,2,1,CLKSOURCE,0,SysTick uses the optional external reference clock,1,SysTick uses the processor clock
+R,16,1,COUNTFLAG,0,timer has not counted to 0,1,timer has counted to 0
 0xE000E014,SYST_RVR,SysTick Reload Value Register
+B,0,24,RELOAD
 0xE000E018,SYST_CVR,SysTick Current Value Register
+B,0,24,CURRENT
 0xE000E01C,SYST_CALIB,SysTick Calibration Value Register
+B,0,24,TENMS,0,calibration value not known
+B,30,1,SKEW,0,10ms calibration value is exact,1,10ms calibration value is inexact
+B31,1,NOREF,0,the reference clock is implemented,1,the reference clock is not implemented
 0xE000E100,NVIC_ISER,Interrupt Set-Enable Register
+R,0,1,SETENA_0,0,interrupt 0 is disabled,1,interrupt 0 is enabled
+W,0,1,SETENA_0,0,no effect,1,enable the interrupt 0
+R,1,1,SETENA_1,0,interrupt 1 is disabled,1,interrupt 1 is enabled
+W,1,1,SETENA_1,0,no effect,1,enable the interrupt 1
+R,2,1,SETENA_2,0,interrupt 2 is disabled,1,interrupt 2 is enabled
+W,2,1,SETENA_2,0,no effect,1,enable the interrupt 2
+R,3,1,SETENA_3,0,interrupt 3 is disabled,1,interrupt 3 is enabled
+W,3,1,SETENA_3,0,no effect,1,enable the interrupt 3
+R,4,1,SETENA_4,0,interrupt 4 is disabled,1,interrupt 4 is enabled
+W,4,1,SETENA_4,0,no effect,1,enable the interrupt 4
+R,5,1,SETENA_5,0,interrupt 5 is disabled,1,interrupt 5 is enabled
+W,5,1,SETENA_5,0,no effect,1,enable the interrupt 5
+R,6,1,SETENA_3,0,interrupt 6 is disabled,1,interrupt 6 is enabled
+W,6,1,SETENA_3,0,no effect,1,enable the interrupt 6
+R,7,1,SETENA_7,0,interrupt 7 is disabled,1,interrupt 7 is enabled
+W,7,1,SETENA_7,0,no effect,1,enable the interrupt 7
+R,8,1,SETENA_8,0,interrupt 8 is disabled,1,interrupt 8 is enabled
+W,8,1,SETENA_8,0,no effect,1,enable the interrupt 8
+R,9,1,SETENA_9,0,interrupt 9 is disabled,1,interrupt 9 is enabled
+W,9,1,SETENA_9,0,no effect,1,enable the interrupt 9
+R,10,1,SETENA_10,0,interrupt 10 is disabled,1,interrupt 10 is enabled
+W,10,1,SETENA_10,0,no effect,1,enable the interrupt 10
+R,11,1,SETENA_11,0,interrupt 11 is disabled,1,interrupt 11 is enabled
+W,11,1,SETENA_11,0,no effect,1,enable the interrupt 11
+R,12,1,SETENA_12,0,interrupt 12 is disabled,1,interrupt 12 is enabled
+W,12,1,SETENA_12,0,no effect,1,enable the interrupt 12
+R,13,1,SETENA_13,0,interrupt 13 is disabled,1,interrupt 13 is enabled
+W,13,1,SETENA_13,0,no effect,1,enable the interrupt 13
+R,14,1,SETENA_14,0,interrupt 14 is disabled,1,interrupt 14 is enabled
+W,14,1,SETENA_14,0,no effect,1,enable the interrupt 14
+R,15,1,SETENA_15,0,interrupt 15 is disabled,1,interrupt 15 is enabled
+W,15,1,SETENA_15,0,no effect,1,enable the interrupt 15
+R,16,1,SETENA_16,0,interrupt 16 is disabled,1,interrupt 16 is enabled
+W,16,1,SETENA_16,0,no effect,1,enable the interrupt 16
+R,17,1,SETENA_17,0,interrupt 17 is disabled,1,interrupt 17 is enabled
+W,17,1,SETENA_17,0,no effect,1,enable the interrupt 17
+R,18,1,SETENA_18,0,interrupt 18 is disabled,1,interrupt 18 is enabled
+W,18,1,SETENA_18,0,no effect,1,enable the interrupt 18
+R,19,1,SETENA_19,0,interrupt 19 is disabled,1,interrupt 19 is enabled
+W,19,1,SETENA_19,0,no effect,1,enable the interrupt 19
+R,20,1,SETENA_20,0,interrupt 20 is disabled,1,interrupt 20 is enabled
+W,20,1,SETENA_20,0,no effect,1,enable the interrupt 20
+R,21,1,SETENA_21,0,interrupt 21 is disabled,1,interrupt 21 is enabled
+W,21,1,SETENA_21,0,no effect,1,enable the interrupt 21
+R,22,1,SETENA_22,0,interrupt 22 is disabled,1,interrupt 22 is enabled
+W,22,1,SETENA_22,0,no effect,1,enable the interrupt 22
+R,23,1,SETENA_23,0,interrupt 23 is disabled,1,interrupt 23 is enabled
+W,23,1,SETENA_23,0,no effect,1,enable the interrupt 23
+R,24,1,SETENA_24,0,interrupt 24 is disabled,1,interrupt 24 is enabled
+W,24,1,SETENA_24,0,no effect,1,enable the interrupt 24
+R,25,1,SETENA_25,0,interrupt 25 is disabled,1,interrupt 25 is enabled
+W,25,1,SETENA_25,0,no effect,1,enable the interrupt 25
+R,26,1,SETENA_26,0,interrupt 26 is disabled,1,interrupt 26 is enabled
+W,26,1,SETENA_26,0,no effect,1,enable the interrupt 26
+R,27,1,SETENA_27,0,interrupt 27 is disabled,1,interrupt 27 is enabled
+W,27,1,SETENA_27,0,no effect,1,enable the interrupt 27
+R,28,1,SETENA_28,0,interrupt 28 is disabled,1,interrupt 28 is enabled
+W,28,1,SETENA_28,0,no effect,1,enable the interrupt 28
+R,29,1,SETENA_29,0,interrupt 29 is disabled,1,interrupt 29 is enabled
+W,29,1,SETENA_29,0,no effect,1,enable the interrupt 29
+R,30,1,SETENA_30,0,interrupt 30 is disabled,1,interrupt 30 is enabled
+W,30,1,SETENA_30,0,no effect,1,enable the interrupt 30
+R,31,1,SETENA_31,0,interrupt 31 is disabled,1,interrupt 31 is enabled
+W,31,1,SETENA_31,0,no effect,1,enable the interrupt 31
 0xE000E180,NVIC_ICER,Interrupt Clear-Enable Register
+R,0,1,CLRENA_0,0,interrupt 0 is disabled,1,interrupt 0 is enabled
+W,0,1,CLRENA_0,0,no effect,1,disable the interrupt 0
+R,1,1,CLRENA_1,0,interrupt 1 is disabled,1,interrupt 1 is enabled
+W,1,1,CLRENA_1,0,no effect,1,disable the interrupt 1
+R,2,1,CLRENA_2,0,interrupt 2 is disabled,1,interrupt 2 is enabled
+W,2,1,CLRENA_2,0,no effect,1,disable the interrupt 2
+R,3,1,CLRENA_3,0,interrupt 3 is disabled,1,interrupt 3 is enabled
+W,3,1,CLRENA_3,0,no effect,1,disable the interrupt 3
+R,4,1,CLRENA_4,0,interrupt 4 is disabled,1,interrupt 4 is enabled
+W,4,1,CLRENA_4,0,no effect,1,disable the interrupt 4
+R,5,1,CLRENA_5,0,interrupt 5 is disabled,1,interrupt 5 is enabled
+W,5,1,CLRENA_5,0,no effect,1,disable the interrupt 5
+R,6,1,CLRENA_6,0,interrupt 6 is disabled,1,interrupt 6 is enabled
+W,6,1,CLRENA_6,0,no effect,1,disable the interrupt 6
+R,7,1,CLRENA_7,0,interrupt 7 is disabled,1,interrupt 7 is enabled
+W,7,1,CLRENA_7,0,no effect,1,disable the interrupt 7
+R,8,1,CLRENA_8,0,interrupt 8 is disabled,1,interrupt 8 is enabled
+W,8,1,CLRENA_8,0,no effect,1,disable the interrupt 8
+R,9,1,CLRENA_9,0,interrupt 9 is disabled,1,interrupt 9 is enabled
+W,9,1,CLRENA_9,0,no effect,1,disable the interrupt 9
+R,10,1,CLRENA_10,0,interrupt 10 is disabled,1,interrupt 10 is enabled
+W,10,1,CLRENA_10,0,no effect,1,disable the interrupt 10
+R,11,1,CLRENA_11,0,interrupt 11 is disabled,1,interrupt 11 is enabled
+W,11,1,CLRENA_11,0,no effect,1,disable the interrupt 11
+R,12,1,CLRENA_12,0,interrupt 12 is disabled,1,interrupt 12 is enabled
+W,12,1,CLRENA_12,0,no effect,1,disable the interrupt 12
+R,13,1,CLRENA_13,0,interrupt 13 is disabled,1,interrupt 13 is enabled
+W,13,1,CLRENA_13,0,no effect,1,disable the interrupt 13
+R,14,1,CLRENA_14,0,interrupt 14 is disabled,1,interrupt 14 is enabled
+W,14,1,CLRENA_14,0,no effect,1,disable the interrupt 14
+R,15,1,CLRENA_15,0,interrupt 15 is disabled,1,interrupt 15 is enabled
+W,15,1,CLRENA_15,0,no effect,1,disable the interrupt 15
+R,16,1,CLRENA_16,0,interrupt 16 is disabled,1,interrupt 16 is enabled
+W,16,1,CLRENA_16,0,no effect,1,disable the interrupt 16
+R,17,1,CLRENA_17,0,interrupt 17 is disabled,1,interrupt 17 is enabled
+W,17,1,CLRENA_17,0,no effect,1,disable the interrupt 17
+R,18,1,CLRENA_18,0,interrupt 18 is disabled,1,interrupt 18 is enabled
+W,18,1,CLRENA_18,0,no effect,1,disable the interrupt 18
+R,19,1,CLRENA_19,0,interrupt 19 is disabled,1,interrupt 19 is enabled
+W,19,1,CLRENA_19,0,no effect,1,disable the interrupt 19
+R,20,1,CLRENA_20,0,interrupt 20 is disabled,1,interrupt 20 is enabled
+W,20,1,CLRENA_20,0,no effect,1,disable the interrupt 20
+R,21,1,CLRENA_21,0,interrupt 21 is disabled,1,interrupt 21 is enabled
+W,21,1,CLRENA_21,0,no effect,1,disable the interrupt 21
+R,22,1,CLRENA_22,0,interrupt 22 is disabled,1,interrupt 22 is enabled
+W,22,1,CLRENA_22,0,no effect,1,disable the interrupt 22
+R,23,1,CLRENA_23,0,interrupt 23 is disabled,1,interrupt 23 is enabled
+W,23,1,CLRENA_23,0,no effect,1,disable the interrupt 23
+R,24,1,CLRENA_24,0,interrupt 24 is disabled,1,interrupt 24 is enabled
+W,24,1,CLRENA_24,0,no effect,1,disable the interrupt 24
+R,25,1,CLRENA_25,0,interrupt 25 is disabled,1,interrupt 25 is enabled
+W,25,1,CLRENA_25,0,no effect,1,disable the interrupt 25
+R,26,1,CLRENA_26,0,interrupt 26 is disabled,1,interrupt 26 is enabled
+W,26,1,CLRENA_26,0,no effect,1,disable the interrupt 26
+R,27,1,CLRENA_27,0,interrupt 27 is disabled,1,interrupt 27 is enabled
+W,27,1,CLRENA_27,0,no effect,1,disable the interrupt 27
+R,28,1,CLRENA_28,0,interrupt 28 is disabled,1,interrupt 28 is enabled
+W,28,1,CLRENA_28,0,no effect,1,disable the interrupt 28
+R,29,1,CLRENA_29,0,interrupt 29 is disabled,1,interrupt 29 is enabled
+W,29,1,CLRENA_29,0,no effect,1,disable the interrupt 29
+R,30,1,CLRENA_30,0,interrupt 30 is disabled,1,interrupt 30 is enabled
+W,30,1,CLRENA_30,0,no effect,1,disable the interrupt 30
+R,31,1,CLRENA_31,0,interrupt 31 is disabled,1,interrupt 31 is enabled
+W,31,1,CLRENA_31,0,no effect,1,disable the interrupt 31
 0xE000E200,NVIC_ISPR,Interrupt Set-Pending Register
+R,0,1,SETPEND_0,0,interrupt 0 is not pending,1,interrupt 0 is pending
+W,0,1,SETPEND_0,0,no effect,1,set the interrupt 0 to pending
+R,1,1,SETPEND_1,0,interrupt 1 is not pending,1,interrupt 1 is pending
+W,1,1,SETPEND_1,0,no effect,1,set the interrupt 1 to pending
+R,2,1,SETPEND_2,0,interrupt 2 is not pending,1,interrupt 2 is pending
+W,2,1,SETPEND_2,0,no effect,1,set the interrupt 2 to pending
+R,3,1,SETPEND_3,0,interrupt 3 is not pending,1,interrupt 3 is pending
+W,3,1,SETPEND_3,0,no effect,1,set the interrupt 3 to pending
+R,4,1,SETPEND_4,0,interrupt 4 is not pending,1,interrupt 4 is pending
+W,4,1,SETPEND_4,0,no effect,1,set the interrupt 4 to pending
+R,5,1,SETPEND_5,0,interrupt 5 is not pending,1,interrupt 5 is pending
+W,5,1,SETPEND_5,0,no effect,1,set the interrupt 5 to pending
+R,6,1,SETPEND_6,0,interrupt 6 is not pending,1,interrupt 6 is pending
+W,6,1,SETPEND_6,0,no effect,1,set the interrupt 6 to pending
+R,7,1,SETPEND_7,0,interrupt 7 is not pending,1,interrupt 7 is pending
+W,7,1,SETPEND_7,0,no effect,1,set the interrupt 7 to pending
+R,8,1,SETPEND_8,0,interrupt 8 is not pending,1,interrupt 8 is pending
+W,8,1,SETPEND_8,0,no effect,1,set the interrupt 8 to pending
+R,9,1,SETPEND_9,0,interrupt 9 is not pending,1,interrupt 9 is pending
+W,9,1,SETPEND_9,0,no effect,1,set the interrupt 9 to pending
+R,10,1,SETPEND_10,0,interrupt 10 is not pending,1,interrupt 10 is pending
+W,10,1,SETPEND_10,0,no effect,1,set the interrupt 10 to pending
+R,11,1,SETPEND_11,0,interrupt 11 is not pending,1,interrupt 11 is pending
+W,11,1,SETPEND_11,0,no effect,1,set the interrupt 11 to pending
+R,12,1,SETPEND_12,0,interrupt 12 is not pending,1,interrupt 12 is pending
+W,12,1,SETPEND_12,0,no effect,1,set the interrupt 12 to pending
+R,13,1,SETPEND_13,0,interrupt 13 is not pending,1,interrupt 13 is pending
+W,13,1,SETPEND_13,0,no effect,1,set the interrupt 13 to pending
+R,14,1,SETPEND_14,0,interrupt 14 is not pending,1,interrupt 14 is pending
+W,14,1,SETPEND_14,0,no effect,1,set the interrupt 14 to pending
+R,15,1,SETPEND_15,0,interrupt 15 is not pending,1,interrupt 15 is pending
+W,15,1,SETPEND_15,0,no effect,1,set the interrupt 15 to pending
+R,16,1,SETPEND_16,0,interrupt 16 is not pending,1,interrupt 16 is pending
+W,16,1,SETPEND_16,0,no effect,1,set the interrupt 16 to pending
+R,17,1,SETPEND_17,0,interrupt 17 is not pending,1,interrupt 17 is pending
+W,17,1,SETPEND_17,0,no effect,1,set the interrupt 17 to pending
+R,18,1,SETPEND_18,0,interrupt 18 is not pending,1,interrupt 18 is pending
+W,18,1,SETPEND_18,0,no effect,1,set the interrupt 18 to pending
+R,19,1,SETPEND_19,0,interrupt 19 is not pending,1,interrupt 19 is pending
+W,19,1,SETPEND_19,0,no effect,1,set the interrupt 19 to pending
+R,20,1,SETPEND_20,0,interrupt 20 is not pending,1,interrupt 20 is pending
+W,20,1,SETPEND_20,0,no effect,1,set the interrupt 20 to pending
+R,21,1,SETPEND_21,0,interrupt 21 is not pending,1,interrupt 21 is pending
+W,21,1,SETPEND_21,0,no effect,1,set the interrupt 21 to pending
+R,22,1,SETPEND_22,0,interrupt 22 is not pending,1,interrupt 22 is pending
+W,22,1,SETPEND_22,0,no effect,1,set the interrupt 22 to pending
+R,23,1,SETPEND_23,0,interrupt 23 is not pending,1,interrupt 23 is pending
+W,23,1,SETPEND_23,0,no effect,1,set the interrupt 23 to pending
+R,24,1,SETPEND_24,0,interrupt 24 is not pending,1,interrupt 24 is pending
+W,24,1,SETPEND_24,0,no effect,1,set the interrupt 24 to pending
+R,25,1,SETPEND_25,0,interrupt 25 is not pending,1,interrupt 25 is pending
+W,25,1,SETPEND_25,0,no effect,1,set the interrupt 25 to pending
+R,26,1,SETPEND_26,0,interrupt 26 is not pending,1,interrupt 26 is pending
+W,26,1,SETPEND_26,0,no effect,1,set the interrupt 26 to pending
+R,27,1,SETPEND_27,0,interrupt 27 is not pending,1,interrupt 27 is pending
+W,27,1,SETPEND_27,0,no effect,1,set the interrupt 27 to pending
+R,28,1,SETPEND_28,0,interrupt 28 is not pending,1,interrupt 28 is pending
+W,28,1,SETPEND_28,0,no effect,1,set the interrupt 28 to pending
+R,29,1,SETPEND_29,0,interrupt 29 is not pending,1,interrupt 29 is pending
+W,29,1,SETPEND_29,0,no effect,1,set the interrupt 29 to pending
+R,30,1,SETPEND_30,0,interrupt 30 is not pending,1,interrupt 30 is pending
+W,30,1,SETPEND_30,0,no effect,1,set the interrupt 30 to pending
+R,31,1,SETPEND_31,0,interrupt 31 is not pending,1,interrupt 31 is pending
+W,31,1,SETPEND_31,0,no effect,1,set the interrupt 31 to pending
 0xE000E280,NVIC_ICPR,Interrupt Clear-Pending Register
+R,0,1,CLRPEND_0,0,interrupt 0 is not pending,1,interrupt 0 is pending
+W,0,1,CLRPEND_0,0,no effect,1,set the interrupt 0 to not pending
+R,1,1,CLRPEND_1,0,interrupt 1 is not pending,1,interrupt 1 is pending
+W,1,1,CLRPEND_1,0,no effect,1,set the interrupt 1 to not pending
+R,2,1,CLRPEND_2,0,interrupt 2 is not pending,1,interrupt 2 is pending
+W,2,1,CLRPEND_2,0,no effect,1,set the interrupt 2 to not pending
+R,3,1,CLRPEND_3,0,interrupt 3 is not pending,1,interrupt 3 is pending
+W,3,1,CLRPEND_3,0,no effect,1,set the interrupt 3 to not pending
+R,4,1,CLRPEND_4,0,interrupt 4 is not pending,1,interrupt 4 is pending
+W,4,1,CLRPEND_4,0,no effect,1,set the interrupt 4 to not pending
+R,5,1,CLRPEND_5,0,interrupt 5 is not pending,1,interrupt 5 is pending
+W,5,1,CLRPEND_5,0,no effect,1,set the interrupt 5 to not pending
+R,6,1,CLRPEND_6,0,interrupt 6 is not pending,1,interrupt 6 is pending
+W,6,1,CLRPEND_6,0,no effect,1,set the interrupt 6 to not pending
+R,7,1,CLRPEND_7,0,interrupt 7 is not pending,1,interrupt 7 is pending
+W,7,1,CLRPEND_7,0,no effect,1,set the interrupt 7 to not pending
+R,8,1,CLRPEND_8,0,interrupt 8 is not pending,1,interrupt 8 is pending
+W,8,1,CLRPEND_8,0,no effect,1,set the interrupt 8 to not pending
+R,9,1,CLRPEND_9,0,interrupt 9 is not pending,1,interrupt 9 is pending
+W,9,1,CLRPEND_9,0,no effect,1,set the interrupt 9 to not pending
+R,10,1,CLRPEND_10,0,interrupt 10 is not pending,1,interrupt 10 is pending
+W,10,1,CLRPEND_10,0,no effect,1,set the interrupt 10 to not pending
+R,11,1,CLRPEND_11,0,interrupt 11 is not pending,1,interrupt 11 is pending
+W,11,1,CLRPEND_11,0,no effect,1,set the interrupt 11 to not pending
+R,12,1,CLRPEND_12,0,interrupt 12 is not pending,1,interrupt 12 is pending
+W,12,1,CLRPEND_12,0,no effect,1,set the interrupt 12 to not pending
+R,13,1,CLRPEND_13,0,interrupt 13 is not pending,1,interrupt 13 is pending
+W,13,1,CLRPEND_13,0,no effect,1,set the interrupt 13 to not pending
+R,14,1,CLRPEND_14,0,interrupt 14 is not pending,1,interrupt 14 is pending
+W,14,1,CLRPEND_14,0,no effect,1,set the interrupt 14 to not pending
+R,15,1,CLRPEND_15,0,interrupt 15 is not pending,1,interrupt 15 is pending
+W,15,1,CLRPEND_15,0,no effect,1,set the interrupt 15 to not pending
+R,16,1,CLRPEND_16,0,interrupt 16 is not pending,1,interrupt 16 is pending
+W,16,1,CLRPEND_16,0,no effect,1,set the interrupt 16 to not pending
+R,17,1,CLRPEND_17,0,interrupt 17 is not pending,1,interrupt 17 is pending
+W,17,1,CLRPEND_17,0,no effect,1,set the interrupt 17 to not pending
+R,18,1,CLRPEND_18,0,interrupt 18 is not pending,1,interrupt 18 is pending
+W,18,1,CLRPEND_18,0,no effect,1,set the interrupt 18 to not pending
+R,19,1,CLRPEND_19,0,interrupt 19 is not pending,1,interrupt 19 is pending
+W,19,1,CLRPEND_19,0,no effect,1,set the interrupt 19 to not pending
+R,20,1,CLRPEND_20,0,interrupt 20 is not pending,1,interrupt 20 is pending
+W,20,1,CLRPEND_20,0,no effect,1,set the interrupt 20 to not pending
+R,21,1,CLRPEND_21,0,interrupt 21 is not pending,1,interrupt 21 is pending
+W,21,1,CLRPEND_21,0,no effect,1,set the interrupt 21 to not pending
+R,22,1,CLRPEND_22,0,interrupt 22 is not pending,1,interrupt 22 is pending
+W,22,1,CLRPEND_22,0,no effect,1,set the interrupt 22 to not pending
+R,23,1,CLRPEND_23,0,interrupt 23 is not pending,1,interrupt 23 is pending
+W,23,1,CLRPEND_23,0,no effect,1,set the interrupt 23 to not pending
+R,24,1,CLRPEND_24,0,interrupt 24 is not pending,1,interrupt 24 is pending
+W,24,1,CLRPEND_24,0,no effect,1,set the interrupt 24 to not pending
+R,25,1,CLRPEND_25,0,interrupt 25 is not pending,1,interrupt 25 is pending
+W,25,1,CLRPEND_25,0,no effect,1,set the interrupt 25 to not pending
+R,26,1,CLRPEND_26,0,interrupt 26 is not pending,1,interrupt 26 is pending
+W,26,1,CLRPEND_26,0,no effect,1,set the interrupt 26 to not pending
+R,27,1,CLRPEND_27,0,interrupt 27 is not pending,1,interrupt 27 is pending
+W,27,1,CLRPEND_27,0,no effect,1,set the interrupt 27 to not pending
+R,28,1,CLRPEND_28,0,interrupt 28 is not pending,1,interrupt 28 is pending
+W,28,1,CLRPEND_28,0,no effect,1,set the interrupt 28 to not pending
+R,29,1,CLRPEND_29,0,interrupt 29 is not pending,1,interrupt 29 is pending
+W,29,1,CLRPEND_29,0,no effect,1,set the interrupt 29 to not pending
+R,30,1,CLRPEND_30,0,interrupt 30 is not pending,1,interrupt 30 is pending
+W,30,1,CLRPEND_30,0,no effect,1,set the interrupt 30 to not pending
+R,31,1,CLRPEND_31,0,interrupt 31 is not pending,1,interrupt 31 is pending
+W,31,1,CLRPEND_31,0,no effect,1,set the interrupt 31 to not pending
 0xE000ED00,CPUID
+R,0,4,REVISION
+R,4,12,PARTNO
+R,16,4,ARCHITECTURE,12,ARMv6-M
+R,20,4,VARIANT
+R,24,8,IMPLEMENTER,65,ARM
 0xE000ED04,ICSR,Interrupt Control and State Register
+B,0,9,VECTACTIVE,0,thread mode
+B,12,9,VECTPENDING,0, no pending exceptions
+B,22,1,ISRPENDING,0, interrupt is not pending,1,interrupt is pending
+B,23,1,ISRPREEMPT,0,will not serve pending interrupt on exit from debug halt,1,will service pending exception on exit from debug halt
+B,25,1,PENDSTCLR,0,do not clear,1,clear pending SysTick
+B,26,1,PENDSTSET,0,do not set,1,set pending SysTick
+B,27,1,PENDSVCLR,0,do not clear,1,clear pending PendSV
+B,28,1,PENDSVSET,0,do not set,1,set pending PendSV interrupt
+B,31,1,NMIPENDSET,0,do not activate,1,activate NMI exception
 0xE000ED08,VTOR,Vector Table Offset Register (optional)
+B,7,25,TBLOFF
 0xE000ED0C,AIRCR,Application Interrupt and Reset Control Register
+W,1,1,VECTCLRACTIVE,0,do not clear vector state information,1,clear vector state information
+W,2,1,SYSRESETREQ,0,do not request reset,1,request system reset
+R,15,1,ENDIANESS,0,little endian,1,big endian
+W,16,16,VECTKEY,1530,Key OK
+R,16,16,VECTKEYSTAT
 0xE000ED10,SCR,System Control Register
+B,1,1,SLEEPONEXIT,0,do not enter sleep state on ISR exit,1,enter sleep state on ISR exit
+B,2,1,SLEEPDEEP,0,selected sleep state is not deep sleep,1,selected sleep state is deep sleep
+B,4,1,SEVONPEND,0,transitions from inactive to pending are not wakeup events,1,transitions from inactive to pending are wakeup events
 0xE000ED14,CCR,Configuration and Control Register
+B,3,1,UNALIGN_TRP,1,unaligned halfword and word access generate a hard fault exception
+B,9,1,STKALIGN,1,on exception entry the stack pointer is 8-byte-aligned
 0xE000ED1C,SHPR2,System Handler Priority Register 2
+B,30,2,PRI_11
 0xE000ED20,SHPR3,System Handler Priority Register 3
+B,22,2,PRI_14
+B,30,2,PRI_15
 0xE000ED24,SHCSR,System Handler Conrol and State Register
+B,15,1,SVCALLPENDED,0,SVCall is not pending,1,SVCall is pending
 0xE000ED30,DFSR,Debug Fault Status Register
+B,0,1,HALTED,0,no halt,1,halt request debug event
+B,1,1,BKPT,0,no breakpoint,1,breakpoint event
+B,2,1,DWTTRAP,0,no debug event from DWT,1,debug events from DWT
+B,3,1,VCATCH,0,no Vector catch debug event,1,vector catch event
+B,4,1,EXTERNAL,0,no EDBGRQ debug event,1,EDBGRQ debug event
 0xE000ED90,MPU_TYPE
+B,0,1,SEPERATE
+B,8,8,DREGION
+B,16,8,IREGION
 0xE000ED94,MPU_CTRL
-0xE000ED98,MPU_RNR,MPU Region Number Reister
+B,0,1,ENABLE,0,MPU is disabled,1,MPU is enabled
+B,1,1,HFNMIENA,0,disable the MPU for HardFaults and NMI,1,enabled the MPU for HardFaults and NMI
+B,2,1,PRIVDEFENA,0,disable default memory map,1,enable default memory map
+0xE000ED98,MPU_RNR,MPU Region Number Register
+B,0,8,REGION
 0xE000ED9C,MPU_RBAR,MPU Region Base Address Register
+B,0,4,REGION
+B,4,1,VALID
+B,8,24,ADDR
 0xE000EDA0,MPU_RASR,MPU Region Atribute and Size Register
+B,0,1,ENABLE,0,region is disabled,1,region is enabled
+B,1,5,SIZE
+B,8,8,SRD,0,subregion enabled,1,subregion disabled
+B,16,1,ATTRS.B
+B,17,1,ATTRS.C
+B,18,1,ATTRS.S
+B,19,3,ATTRS.TEX
+B,24,3,ATTRS.AP,0,no access allowed,1,privileged access only,2,no unprivileged write,3,full access,5,privileged read only,6,read only,7,read only
+B,28,1,ATTRS.XN,0,executing allowed,1,execution not allowed
 0xE000EDF0,DHCSR,Debug Halting Control and Status Register
+B,0,1,C_DEBUGEN,0,halting debug disabled,1,halting debug enabled
+B,1,1,C_HALT,0,request processor to run,1,request processor to halt
+B,2,1,C_STEP,0,single stepping disabled,1,single stepping enabled
+B,3,1,C_MASKINTS,0,do not mask,1,mask PendSV,SysTick and external interrupts
+W,16,16,DBGKEY,41055,Key OK
+R,16,1,S_REGRDY,0,DCRDR transfer not complete,1,DCRDR transfer complete
+R,17,1,S_HALT,0,not i debug state,1,in debug state
+R,18,1,S_SLEEP,0,not sleeping,1,sleeping
+R,19,1,S_LOCKUP,0,not locked up,1,locked up
+R,24,1,S_RETIRE_ST,0,no instruction executed since last read,1,at least one instruction executed since last read
+R,25,1,S_RESET_ST,0,no reset since last read,1,at least one reset since last read
 0xE000EDF4,DCRSR,Debug Core Register Selector Register
+B,0,5,REGSEL,0,R0,1,R1,2,R2,3,R3,4,R4,5,R5,6,R6,7,R7,8,R8,9,R9,10,R10,11,R11,12,R12,13,current SP,14,LR,15,Debug Return Address,16,xPSR,17,Main Stack Pointer(MSP),18,Process StackPointer(PSP),20,Control/PRIMASK
+B,16,1,REGWNR,0,read,1,write
 0xE000EDF8,DCRDR,Debug Core Register Data Register
+B,0,32,DBGTMP
 0xE000EDFC,DEMCR,Debug Exception and Monitor Control Register
-
+B,0,1,VC_CORERESET,0,rest vector catch disabled,1,reset vector catch enabled
+B,10,1,VC_HARDERR,0,no debug halt on HardFault,1,debug halt on HardFault
+B,24,1,DWTENA,0,DWT disabled,1,DWT enabled

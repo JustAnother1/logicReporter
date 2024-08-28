@@ -12,7 +12,7 @@ public class LineReset extends SwdPacket
     @Override
     public void reportTo(PrintStream out)
     {
-        out.println("Line Reset");
+        out.println("\r\n\r\n\r\n\r\nLine Reset");
     }
 
 }

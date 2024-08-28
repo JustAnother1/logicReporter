@@ -21,6 +21,7 @@ public class SwdReporter
     private static final int CLK_RISING_DATA_1 = 3;
 
     private Vector<Integer> edges = new Vector<Integer>();
+    private Vector<Double> startTimes = new Vector<Double>();
     private PrintStream out;
     private swdState state;
     private BitStreamCracker bitToPackets;
@@ -81,6 +82,7 @@ public class SwdReporter
                 double diff = (now_time - lastTime);
                 int pause = 0 - (int)(diff * 1000);
                 edges.add(pause);
+                startTimes.add(lastTime);
             }
             lastTime = now_time;
             if(true == lastStateSwclkHigh)
@@ -90,11 +92,13 @@ public class SwdReporter
                 {
                     if(true == report_edge_level) out.append("F1,");
                     edges.add(CLK_FALLING_DATA_1);
+                    startTimes.add(now_time);
                 }
                 else
                 {
                     if(true == report_edge_level) out.append("F0,");
                     edges.add(CLK_FALLING_DATA_0);
+                    startTimes.add(now_time);
                 }
                 lastStateSwclkHigh = false;
             }
@@ -105,11 +109,13 @@ public class SwdReporter
                 {
                     if(true == report_edge_level) out.append("R1,");
                     edges.add(CLK_RISING_DATA_1);
+                    startTimes.add(now_time);
                 }
                 else
                 {
                     if(true == report_edge_level) out.append("R0,");
                     edges.add(CLK_RISING_DATA_0);
+                    startTimes.add(now_time);
                 }
                 lastStateSwclkHigh = true;
             }
@@ -134,20 +140,21 @@ public class SwdReporter
     {
         while(0 < edges.size())
         {
-            // data is valid on rising edge (TODO?)
+            // data is valid on rising edge
             int curEdge = edges.get(0);
+            double startTime = startTimes.get(0);
             if(0 > curEdge)
             {
                 int time = Math.abs(curEdge);
                 if(1000 > time)
                 {
-                    out.println("Signal pause of " + time + " ms");
+                    out.println("\r\n\r\n\r\nSignal pause of " + time + " ms (start: " + timestamp(startTime) + ")");
                 }
                 else
                 {
                     int sec = time/1000;
                     time = time%1000;
-                    out.println("Signal pause of " + sec  + " seconds and " + time + " ms");
+                    out.println("\r\n\r\n\r\nSignal pause of " + sec  + " seconds and " + time + " ms (start: " + timestamp(startTime) + ")");
                 }
             }
             else
@@ -171,6 +178,7 @@ public class SwdReporter
                 }
             }
             edges.remove(0);
+            startTimes.remove(0);
         }
         int numBitsNeeded = 0;
         do
@@ -178,6 +186,48 @@ public class SwdReporter
             numBitsNeeded = bitToPackets.detectPackages();
         }while(numBitsNeeded == 0);
         return numBitsNeeded;
+    }
+
+    private String timestamp(double time)
+    {
+        int ms = (int)(time*1000);
+        if(1000 > ms)
+        {
+            // less than a second
+            return String.format("(%d ms)", ms);
+        }
+        else
+        {
+            if(60*1000 > ms)
+            {
+                // less than a minute
+                int sec = ms/1000;
+                ms = ms - (sec*1000);
+                return String.format("(%d,%03d s)", sec, ms);
+            }
+            else
+            {
+                if(60*60*1000 > ms)
+                {
+                    // less than an hour
+                    int minutes = ms /(60*1000);
+                    ms = ms - (minutes * 60 * 1000);
+                    int sec = ms/1000;
+                    ms = ms - (sec*1000);
+                    return String.format("(%d:%d,%03d m:s)", minutes, sec, ms);
+                }
+                else
+                {
+                    int hours = ms /(60*60*1000);
+                    ms = ms -(hours * 60*60*1000);
+                    int minutes = ms /(60*1000);
+                    ms = ms - (minutes * 60 * 1000);
+                    int sec = ms/1000;
+                    ms = ms - (sec*1000);
+                    return String.format("(%d:%02d:%d,%03d h:m:s)", hours, minutes, sec, ms);
+                }
+            }
+        }
     }
 
 }

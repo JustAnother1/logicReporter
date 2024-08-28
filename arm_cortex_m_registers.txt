@@ -27,6 +27,26 @@ R,4,4,NUM_CODE,0,comparators are not supported
 B,0,1,ENABLE,0,comparator disabled,1,comparator enabled
 B,2,27,COMP
 B,30,2,BP_MATCH,0,no breakpoint matching,1,breakpoint in lower halfword,2,breakpoint in upper halfword,3,breakpoint in both upper and lower halfword
+0xE000200C,BP_COMP1
+B,0,1,ENABLE,0,comparator disabled,1,comparator enabled
+B,2,27,COMP
+B,30,2,BP_MATCH,0,no breakpoint matching,1,breakpoint in lower halfword,2,breakpoint in upper halfword,3,breakpoint in both upper and lower halfword
+0xE0002010,BP_COMP2
+B,0,1,ENABLE,0,comparator disabled,1,comparator enabled
+B,2,27,COMP
+B,30,2,BP_MATCH,0,no breakpoint matching,1,breakpoint in lower halfword,2,breakpoint in upper halfword,3,breakpoint in both upper and lower halfword
+0xE0002014,BP_COMP3
+B,0,1,ENABLE,0,comparator disabled,1,comparator enabled
+B,2,27,COMP
+B,30,2,BP_MATCH,0,no breakpoint matching,1,breakpoint in lower halfword,2,breakpoint in upper halfword,3,breakpoint in both upper and lower halfword
+0xE0002018,BP_COMP4
+B,0,1,ENABLE,0,comparator disabled,1,comparator enabled
+B,2,27,COMP
+B,30,2,BP_MATCH,0,no breakpoint matching,1,breakpoint in lower halfword,2,breakpoint in upper halfword,3,breakpoint in both upper and lower halfword
+0xE000201C,BP_COMP5
+B,0,1,ENABLE,0,comparator disabled,1,comparator enabled
+B,2,27,COMP
+B,30,2,BP_MATCH,0,no breakpoint matching,1,breakpoint in lower halfword,2,breakpoint in upper halfword,3,breakpoint in both upper and lower halfword
 0xE000E008,ACTLR,Auxiliary Control Register
 0xE000E010,SYST_CSR,SysTick Control and Status Register
 B,0,1,ENABLE,0,counter is disabled,1,counter is operating

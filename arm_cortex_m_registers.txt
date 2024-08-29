@@ -390,7 +390,7 @@ B,19,3,ATTRS.TEX
 B,24,3,ATTRS.AP,0,no access allowed,1,privileged access only,2,no unprivileged write,3,full access,5,privileged read only,6,read only,7,read only
 B,28,1,ATTRS.XN,0,executing allowed,1,execution not allowed
 0xE000EDF0,DHCSR,Debug Halting Control and Status Register
-B,0,1,C_DEBUGEN,0,halting debug disabled,1,halting debug enabled
+B,0,1,C_DEBUGEN,0,debug disabled,1,debug enabled
 B,1,1,C_HALT,0,request processor to run,1,request processor to halt
 B,2,1,C_STEP,0,single stepping disabled,1,single stepping enabled
 B,3,1,C_MASKINTS,0,do not mask,1,mask PendSV,SysTick and external interrupts

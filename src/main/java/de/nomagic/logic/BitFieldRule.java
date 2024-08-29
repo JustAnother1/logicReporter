@@ -50,8 +50,14 @@ public class BitFieldRule
             // no description for the value
             res = "" + value;
         }
-        return String.format("0x%08x %15s (%d): %s\r\n", (value<<lowestBitIndex), fieldName, value, res);
-        // return "" + (value<<lowestBitIndex) + fieldName + " ("+ value + ")" + res + "\r\n";
+        if(10 > value)
+        {
+            return String.format("0x%08x %15s (%d): %s\r\n", (value<<lowestBitIndex), fieldName, value, res);
+        }
+        else
+        {
+            return String.format("0x%08x %15s (%d | 0x%x): %s\r\n", (value<<lowestBitIndex), fieldName, value, value, res);
+        }
     }
 
     public boolean isValid()

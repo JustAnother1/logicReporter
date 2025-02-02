@@ -27,26 +27,6 @@ R,4,4,NUM_CODE,0,comparators are not supported
 B,0,1,ENABLE,0,comparator disabled,1,comparator enabled
 B,2,27,COMP
 B,30,2,BP_MATCH,0,no breakpoint matching,1,breakpoint in lower halfword,2,breakpoint in upper halfword,3,breakpoint in both upper and lower halfword
-0xE000200C,BP_COMP1
-B,0,1,ENABLE,0,comparator disabled,1,comparator enabled
-B,2,27,COMP
-B,30,2,BP_MATCH,0,no breakpoint matching,1,breakpoint in lower halfword,2,breakpoint in upper halfword,3,breakpoint in both upper and lower halfword
-0xE0002010,BP_COMP2
-B,0,1,ENABLE,0,comparator disabled,1,comparator enabled
-B,2,27,COMP
-B,30,2,BP_MATCH,0,no breakpoint matching,1,breakpoint in lower halfword,2,breakpoint in upper halfword,3,breakpoint in both upper and lower halfword
-0xE0002014,BP_COMP3
-B,0,1,ENABLE,0,comparator disabled,1,comparator enabled
-B,2,27,COMP
-B,30,2,BP_MATCH,0,no breakpoint matching,1,breakpoint in lower halfword,2,breakpoint in upper halfword,3,breakpoint in both upper and lower halfword
-0xE0002018,BP_COMP4
-B,0,1,ENABLE,0,comparator disabled,1,comparator enabled
-B,2,27,COMP
-B,30,2,BP_MATCH,0,no breakpoint matching,1,breakpoint in lower halfword,2,breakpoint in upper halfword,3,breakpoint in both upper and lower halfword
-0xE000201C,BP_COMP5
-B,0,1,ENABLE,0,comparator disabled,1,comparator enabled
-B,2,27,COMP
-B,30,2,BP_MATCH,0,no breakpoint matching,1,breakpoint in lower halfword,2,breakpoint in upper halfword,3,breakpoint in both upper and lower halfword
 0xE000E008,ACTLR,Auxiliary Control Register
 0xE000E010,SYST_CSR,SysTick Control and Status Register
 B,0,1,ENABLE,0,counter is disabled,1,counter is operating
@@ -390,13 +370,13 @@ B,19,3,ATTRS.TEX
 B,24,3,ATTRS.AP,0,no access allowed,1,privileged access only,2,no unprivileged write,3,full access,5,privileged read only,6,read only,7,read only
 B,28,1,ATTRS.XN,0,executing allowed,1,execution not allowed
 0xE000EDF0,DHCSR,Debug Halting Control and Status Register
-B,0,1,C_DEBUGEN,0,debug disabled,1,debug enabled
+B,0,1,C_DEBUGEN,0,halting debug disabled,1,halting debug enabled
 B,1,1,C_HALT,0,request processor to run,1,request processor to halt
 B,2,1,C_STEP,0,single stepping disabled,1,single stepping enabled
 B,3,1,C_MASKINTS,0,do not mask,1,mask PendSV,SysTick and external interrupts
 W,16,16,DBGKEY,41055,Key OK
 R,16,1,S_REGRDY,0,DCRDR transfer not complete,1,DCRDR transfer complete
-R,17,1,S_HALT,0,not i debug state,1,in debug state
+R,17,1,S_HALT,0,not in debug state,1,in debug state
 R,18,1,S_SLEEP,0,not sleeping,1,sleeping
 R,19,1,S_LOCKUP,0,not locked up,1,locked up
 R,24,1,S_RETIRE_ST,0,no instruction executed since last read,1,at least one instruction executed since last read

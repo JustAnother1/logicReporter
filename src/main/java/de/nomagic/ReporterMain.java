@@ -14,12 +14,12 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
-import de.nomagic.swd.SwdConfiguration;
+import de.nomagic.spi.SpiReporter;
 import de.nomagic.swd.SwdReporter;
 
 public class ReporterMain
 {
-    private SwdConfiguration cfg = new SwdConfiguration();
+    private Configuration cfg = new Configuration();
 
     public ReporterMain(String[] args)
     {
@@ -125,9 +125,11 @@ public class ReporterMain
 
     public void printHelp()
     {
-        System.out.println("Printer Controller for Pacemaker");
+        System.out.println("Logic Reporter");
         System.out.println("Parameters:");
         System.out.println("-h                           : print this message.");
+
+        System.out.println("  SWD:");
         System.out.println("-swclk <logic analyzer file> : SWCLK channel file that will be reported on (required))");
         System.out.println("-swdio <logic analyzer file> : SWDIO channel file that will be reported on (required))");
         System.out.println("-regtrans <file name>        : add a register translation file");
@@ -135,6 +137,19 @@ public class ReporterMain
         System.out.println("-report_bits                 : report all detected bits");
         System.out.println("-report_DP                   : report all Debug Port packets");
         System.out.println("-report_AP                   : report all Access Port packets");
+
+        System.out.println("  SPI:");
+        System.out.println("-clk <logic analyzer file>   : CLK channel file that will be reported on (required))");
+        System.out.println("-ncs <logic analyzer file>   : /CS channel file that will be reported on (required))");
+        System.out.println("-miso <logic analyzer file>  : MISO channel file that will be reported on (required))");
+        System.out.println("-mosi <logic analyzer file>  : MOSI channel file that will be reported on (required))");
+        System.out.println("-mode <num>                  : set the SPI mode");
+        System.out.println("         mode CPOL CPHA write bit                             read bit");
+        System.out.println("         0    0    0    falling clock, and when /CS activates rising clock");
+        System.out.println("         1    0    1    rising clock                          falling clock");
+        System.out.println("         2    1    0    rising clock, and when /CS activates  falling clock");
+        System.out.println("         3    1    1    falling clock                         rising clock ");
+
         System.out.println("-v                           : verbose output for even more messages use -v -v");
     }
 
@@ -151,12 +166,32 @@ public class ReporterMain
                 else if(true == "-swclk".equals(args[i]))
                 {
                     i++;
-                    cfg.add_SWCLK(args[i]);
+                    cfg.add_Channel(Channel.SWD_CLK, args[i]);
                 }
                 else if(true == "-swdio".equals(args[i]))
                 {
                     i++;
-                    cfg.add_SWDIO(args[i]);
+                    cfg.add_Channel(Channel.SWD_IO, args[i]);
+                }
+                else if(true == "-clk".equals(args[i]))
+                {
+                    i++;
+                    cfg.add_Channel(Channel.SPI_CLK, args[i]);
+                }
+                else if(true == "-ncs".equals(args[i]))
+                {
+                    i++;
+                    cfg.add_Channel(Channel.SPI_nCS, args[i]);
+                }
+                else if(true == "-miso".equals(args[i]))
+                {
+                    i++;
+                    cfg.add_Channel(Channel.SPI_MISO, args[i]);
+                }
+                else if(true == "-mosi".equals(args[i]))
+                {
+                    i++;
+                    cfg.add_Channel(Channel.SPI_MOSI, args[i]);
                 }
                 else if(true == "-regtrans".equals(args[i]))
                 {
@@ -179,6 +214,12 @@ public class ReporterMain
                 {
                     cfg.setReportAccessPortPackets(true);
                 }
+                else if(true == "-mode".equals(args[i]))
+                {
+                    i++;
+                    int val = Integer.parseInt(args[i]);
+                    cfg.setSpiMode(val);
+                }
                 else if(true == "-v".equals(args[i]))
                 {
                     // already handled -> ignore
@@ -200,8 +241,21 @@ public class ReporterMain
     private boolean processFile()
     {
         try {
-            SwdReporter rep = new SwdReporter(cfg);
-            return rep.reportTo(System.out);
+            if(cfg.isSWD())
+            {
+                SwdReporter rep = new SwdReporter(cfg);
+                return rep.reportTo(System.out);
+            }
+            else if(cfg.isSPI())
+            {
+                SpiReporter rep = new SpiReporter(cfg);
+                return rep.reportTo(System.out);
+            }
+            else
+            {
+                System.out.println("No protocol to analyze!");
+                return false;
+            }
         }
         catch (FileNotFoundException e)
         {

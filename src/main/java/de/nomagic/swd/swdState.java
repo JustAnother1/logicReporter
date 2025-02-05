@@ -2,6 +2,7 @@ package de.nomagic.swd;
 
 import java.io.PrintStream;
 
+import de.nomagic.Configuration;
 import de.nomagic.PacketSequence;
 import de.nomagic.logic.ValueDecoder;
 import de.nomagic.swd.packets.Disconnect;
@@ -58,7 +59,7 @@ public class swdState implements PacketSequence
         memAp.reportTo(out);
     }
 
-    public void setConfiguration(SwdConfiguration cfg)
+    public void setConfiguration(Configuration cfg)
     {
         if(null == cfg)
         {

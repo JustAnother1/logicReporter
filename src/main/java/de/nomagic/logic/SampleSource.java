@@ -1,12 +1,7 @@
 package de.nomagic.logic;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public abstract class SampleSource
 {
-    private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
-
     protected boolean valid;
 
     private boolean activeSegment_isHigh;
@@ -14,7 +9,6 @@ public abstract class SampleSource
 
     protected SampleSource()
     {
-
     }
 
     public boolean isValid()
@@ -23,13 +17,6 @@ public abstract class SampleSource
     }
 
     public abstract long getNumberEdges();
-    protected abstract double getNextEndTime();
-
-    protected void initializeSampleQueue(boolean initiallyHigh)
-    {
-        activeSegment_endTime = getNextEndTime();
-        activeSegment_isHigh = initiallyHigh;
-    }
 
     public double getTimeOfEdgeAfter(double edgeTime)
     {
@@ -43,12 +30,30 @@ public abstract class SampleSource
         return activeSegment_isHigh;
     }
 
+    protected abstract double getNextEndTime();
+
+    protected void initializeSampleQueue(boolean initiallyHigh)
+    {
+        activeSegment_endTime = getNextEndTime();
+        activeSegment_isHigh = initiallyHigh;
+    }
+
     protected void findEdge(double beforeTime)
     {
+        double lastEndTime = 0.0;
         while(activeSegment_endTime <= beforeTime)
         {
             activeSegment_endTime = getNextEndTime();
-            activeSegment_isHigh = !activeSegment_isHigh;
+            if(lastEndTime != activeSegment_endTime)
+            {
+                activeSegment_isHigh = !activeSegment_isHigh;
+                lastEndTime = activeSegment_endTime;
+            }
+            else
+            {
+                // reached end
+                return;
+            }
         }
     }
 }

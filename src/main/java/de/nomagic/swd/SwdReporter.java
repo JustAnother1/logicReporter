@@ -7,6 +7,8 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.nomagic.Channel;
+import de.nomagic.Configuration;
 import de.nomagic.logic.SampleSource;
 import de.nomagic.logic.ValueDecoder;
 
@@ -25,11 +27,11 @@ public class SwdReporter
     private PrintStream out;
     private swdState state;
     private BitStreamCracker bitToPackets;
-    private SwdConfiguration cfg;
+    private Configuration cfg;
     private boolean report_bit_level = false;
 
 
-    public SwdReporter(SwdConfiguration cfg)
+    public SwdReporter(Configuration cfg)
     {
         this.cfg = cfg;
         ValueDecoder valDec = new ValueDecoder();
@@ -58,8 +60,19 @@ public class SwdReporter
             log.error("configuration or data is invalid");
             return false;
         }
-        SampleSource swclk = cfg.get_SWCLK();
-        SampleSource swdio = cfg.get_SWDIO();
+        SampleSource swclk = cfg.get_channel(Channel.SWD_CLK);
+        SampleSource swdio = cfg.get_channel(Channel.SWD_IO);
+        if(false == swclk.isValid())
+        {
+            log.error("SWDCLK is invalid");
+            return false;
+        }
+        if(false == swdio.isValid())
+        {
+            log.error("SWDIO is invalid");
+            return false;
+        }
+
         if(swdio.getNumberEdges() >= swclk.getNumberEdges())
         {
             // that can not be right

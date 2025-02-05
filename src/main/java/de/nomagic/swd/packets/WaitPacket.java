@@ -1,7 +1,5 @@
 package de.nomagic.swd.packets;
 
-import java.io.PrintStream;
-
 public class WaitPacket extends RequestPacket
 {
 

@@ -232,6 +232,7 @@ public class ReporterMain
             }
             else
             {
+                System.err.println("Invalid Parameter : " + args[i]);
                 return false;
             }
         }

@@ -99,6 +99,7 @@ public class Configuration
         {
             if(false == isSPI())
             {
+                System.err.println("ERROR: Configuration information is missing !");
                 return false;
             }
             // else is SPI -> OK

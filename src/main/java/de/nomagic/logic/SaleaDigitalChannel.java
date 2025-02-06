@@ -97,6 +97,7 @@ public class SaleaDigitalChannel extends SampleSource
                 )
             {
                 // invalid initial state - corrupted data ?
+                log.error("initial state is {}!", initialState);
                 valid = false;
                 return;
             }
@@ -112,6 +113,7 @@ public class SaleaDigitalChannel extends SampleSource
             }
             else
             {
+                log.error("initial state has invalid value!");
                 valid = false;
                 return;
             }
@@ -133,8 +135,7 @@ public class SaleaDigitalChannel extends SampleSource
             {
                 if(1 > fileSize)
                 {
-                    valid = false;
-                    return;
+                    log.warn("File has no transitions!");
                 }
                 else
                 {
@@ -143,12 +144,6 @@ public class SaleaDigitalChannel extends SampleSource
                 }
             }
             log.debug("transitions: {}", transitions);
-
-            if(1 > transitions)
-            {
-                valid = false;
-                return;
-            }
 
             initializeSampleQueue(initiallyHigh);
         }

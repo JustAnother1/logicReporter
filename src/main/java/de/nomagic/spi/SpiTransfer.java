@@ -5,8 +5,10 @@ import java.util.Vector;
 public class SpiTransfer
 {
     private final double startTime;
-    private final Vector<Integer> MisoBits = new Vector<Integer>();
-    private final Vector<Integer> MosiBits = new Vector<Integer>();
+    private final Vector<Integer> MosiBits = new Vector<Integer>(); // IO0
+    private final Vector<Integer> MisoBits = new Vector<Integer>(); // IO1
+    private final Vector<Integer> io2Bits = new Vector<Integer>();
+    private final Vector<Integer> io3Bits = new Vector<Integer>();
     private final boolean bitOrderIsMsbFirst = true;
 
     public SpiTransfer(double startTime)
@@ -21,9 +23,20 @@ public class SpiTransfer
         String misoString = bits2String(MisoBits);
         String mosiString = bits2String(MosiBits);
 
-        return "Spi [startTime=" + startTime  + "] " + numBits + " bits " + numBits/8 + " bytes\r\n"
-                + "MISO : " + misoString + "\r\n"
-                + "MOSI : " + mosiString;
+        String res = "Spi [startTime=" + startTime  + "] " + numBits + " bits " + numBits/8 + " bytes\r\n"
+                + "MOSI : " + mosiString + "\r\n"
+                + "MISO : " + misoString;
+        if(io2Bits.size() > 0)
+        {
+            String io2String = bits2String(io2Bits);
+            res = res + "\r\n" + "IO2 : " + io2String;
+        }
+        if(io3Bits.size() > 0)
+        {
+            String io2String = bits2String(io3Bits);
+            res = res + "\r\n" + "IO3 : " + io2String;
+        }
+        return res;
     }
 
     public void addMisoBit(int val)
@@ -34,6 +47,16 @@ public class SpiTransfer
     public void addMosiBit(int val)
     {
         MosiBits.add(val);
+    }
+
+    public void addIo2Bit(int val)
+    {
+        io2Bits.add(val);
+    }
+
+    public void addIo3Bit(int val)
+    {
+        io3Bits.add(val);
     }
 
     private String bits2String(Vector<Integer> bits)

@@ -17,6 +17,8 @@ public class SpiReporter
     private SpiChannel ncsChannel;
     private SpiChannel misoChannel;
     private SpiChannel mosiChannel;
+    private SpiChannel io2Channel;
+    private SpiChannel io3Channel;
 
     public SpiReporter(Configuration cfg)
     {
@@ -35,6 +37,8 @@ public class SpiReporter
         ncsChannel = new SpiChannel(Channel.SPI_nCS, cfg);
         misoChannel = new SpiChannel(Channel.SPI_MISO, cfg);
         mosiChannel = new SpiChannel(Channel.SPI_MOSI, cfg);
+        io2Channel = new SpiChannel(Channel.SPI_MOSI, cfg);
+        io3Channel = new SpiChannel(Channel.SPI_MOSI, cfg);
 
         if(false == clkChannel.isValid())
         {
@@ -56,6 +60,16 @@ public class SpiReporter
             log.error("signal MOSI not valid !");
             return false;
         }
+        if(false == io2Channel.isValid())
+        {
+            log.debug("signal IO2 not valid !");
+            io2Channel = null;
+        }
+        if(false == io3Channel.isValid())
+        {
+            log.debug("signal IO3 not valid !");
+            io3Channel = null;
+        }
 
         long numEdges = clkChannel.getNumberOfEdges();
 
@@ -73,6 +87,22 @@ public class SpiReporter
         {
             log.error("signal MOSI has more edges than CLK! That makes no sence, right?");
             return false;
+        }
+        if(null != io2Channel)
+        {
+            if(numEdges < io2Channel.getNumberOfEdges())
+            {
+                log.error("signal IO2 has more edges than CLK! That makes no sence, right?");
+                return false;
+            }
+        }
+        if(null != io3Channel)
+        {
+            if(numEdges < io3Channel.getNumberOfEdges())
+            {
+                log.error("signal IO3 has more edges than CLK! That makes no sence, right?");
+                return false;
+            }
         }
 
         return parseBits(out);
@@ -140,6 +170,28 @@ public class SpiReporter
                             {
                                 transfer.addMosiBit(0);
                             }
+                            if(null != io2Channel)
+                            {
+                                if(true == io2Channel.isHighAt(edge_time))
+                                {
+                                    transfer.addIo2Bit(1);
+                                }
+                                else
+                                {
+                                    transfer.addIo2Bit(0);
+                                }
+                            }
+                            if(null != io3Channel)
+                            {
+                                if(true == io3Channel.isHighAt(edge_time))
+                                {
+                                    transfer.addIo3Bit(1);
+                                }
+                                else
+                                {
+                                    transfer.addIo3Bit(0);
+                                }
+                            }
                         }
                         // else falling edge
                         edge_time = clkChannel.getTimeOfEdgeAfter(edge_time);
@@ -176,6 +228,28 @@ public class SpiReporter
                             else
                             {
                                 transfer.addMosiBit(0);
+                            }
+                            if(null != io2Channel)
+                            {
+                                if(true == io2Channel.isHighAt(edge_time))
+                                {
+                                    transfer.addIo2Bit(1);
+                                }
+                                else
+                                {
+                                    transfer.addIo2Bit(0);
+                                }
+                            }
+                            if(null != io3Channel)
+                            {
+                                if(true == io3Channel.isHighAt(edge_time))
+                                {
+                                    transfer.addIo3Bit(1);
+                                }
+                                else
+                                {
+                                    transfer.addIo3Bit(0);
+                                }
                             }
                         }
                         edge_time = clkChannel.getTimeOfEdgeAfter(edge_time);

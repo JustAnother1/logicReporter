@@ -20,6 +20,8 @@ public class Configuration
     private SampleSource ncs = null;
     private SampleSource miso = null;
     private SampleSource mosi = null;
+    private SampleSource io2 = null;
+    private SampleSource io3 = null;
     private boolean reportEdges = false;
     private boolean reportBits = false;
     private boolean reportDP = false;
@@ -52,6 +54,14 @@ public class Configuration
 
         case SPI_MOSI:
             mosi = addChannelFile("mosi", fileName);
+            break;
+
+        case SPI_IO2:
+            io2 = addChannelFile("io2", fileName);
+            break;
+
+        case SPI_IO3:
+            io3 = addChannelFile("io3", fileName);
             break;
 
         case SPI_nCS:
@@ -172,6 +182,12 @@ public class Configuration
 
         case SPI_MOSI:
             return mosi;
+
+        case SPI_IO2:
+            return io2;
+
+        case SPI_IO3:
+            return io3;
 
         case SPI_nCS:
             return ncs;

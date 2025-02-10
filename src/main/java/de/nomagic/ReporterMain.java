@@ -139,10 +139,12 @@ public class ReporterMain
         System.out.println("-report_AP                   : report all Access Port packets");
 
         System.out.println("  SPI:");
-        System.out.println("-clk <logic analyzer file>   : CLK channel file that will be reported on (required))");
-        System.out.println("-ncs <logic analyzer file>   : /CS channel file that will be reported on (required))");
-        System.out.println("-miso <logic analyzer file>  : MISO channel file that will be reported on (required))");
-        System.out.println("-mosi <logic analyzer file>  : MOSI channel file that will be reported on (required))");
+        System.out.println("-clk <logic analyzer file>   : CLK channel file that will be reported on (required)");
+        System.out.println("-ncs <logic analyzer file>   : /CS channel file that will be reported on (required)");
+        System.out.println("-mosi <logic analyzer file>  : MOSI(IO 0) channel file that will be reported on (required)");
+        System.out.println("-miso <logic analyzer file>  : MISO(IO 1) channel file that will be reported on (required)");
+        System.out.println("-io2 <logic analyzer file>   : IO 2 channel file that will be reported on (QSPI only)");
+        System.out.println("-io3 <logic analyzer file>   : IO 3 channel file that will be reported on (QSPI only)");
         System.out.println("-mode <num>                  : set the SPI mode");
         System.out.println("         mode CPOL CPHA write bit                             read bit");
         System.out.println("         0    0    0    falling clock, and when /CS activates rising clock");
@@ -192,6 +194,16 @@ public class ReporterMain
                 {
                     i++;
                     cfg.add_Channel(Channel.SPI_MOSI, args[i]);
+                }
+                else if(true == "-io2".equals(args[i]))
+                {
+                    i++;
+                    cfg.add_Channel(Channel.SPI_IO2, args[i]);
+                }
+                else if(true == "-io3".equals(args[i]))
+                {
+                    i++;
+                    cfg.add_Channel(Channel.SPI_IO3, args[i]);
                 }
                 else if(true == "-regtrans".equals(args[i]))
                 {

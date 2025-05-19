@@ -201,7 +201,7 @@ public class OkPacket extends RequestPacket
         {
             process();
         }
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         if(true == isRead)
         {
             buf.append("Reading ");
@@ -279,7 +279,7 @@ public class OkPacket extends RequestPacket
     private String parseApWrite()
     {
         long help;
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         switch(apReg)
         {
         case CSW:
@@ -388,7 +388,7 @@ public class OkPacket extends RequestPacket
     private String parseApRead()
     {
         long help;
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         switch(apReg)
         {
         case IDR:
@@ -553,7 +553,7 @@ public class OkPacket extends RequestPacket
     private String parseDpWrite()
     {
         long help;
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         switch(dpReg)
         {
         case ABORT:
@@ -723,7 +723,7 @@ public class OkPacket extends RequestPacket
     private String parseDpRead()
     {
         long help;
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         switch(dpReg)
         {
         case CTRL_STAT:

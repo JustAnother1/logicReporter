@@ -171,7 +171,7 @@ public class ValueDecoder
             ArrayList<BitFieldRule> rules = readBitRules.get(address);
             if(null != rules)
             {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 for(int i = 0; i < rules.size(); i++)
                 {
                     BitFieldRule curRule = rules.get(i);
@@ -190,7 +190,7 @@ public class ValueDecoder
             ArrayList<BitFieldRule> rules = writeBitRules.get(address);
             if(null != rules)
             {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 for(int i = 0; i < rules.size(); i++)
                 {
                     BitFieldRule curRule = rules.get(i);

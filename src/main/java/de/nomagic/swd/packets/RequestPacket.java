@@ -14,7 +14,7 @@ public abstract class RequestPacket extends SwdPacket
     @Override
     public void reportTo(PrintStream out)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("SWD Packet(");
         if(true == isDP)
         {

@@ -26,11 +26,11 @@ public abstract class RequestPacket extends SwdPacket
         }
         if(true == isRead)
         {
-            buf.append("Reading,");
+            buf.append("reading,");
         }
         else
         {
-            buf.append("Writing,");
+            buf.append("writing,");
         }
         buf.append("a23=" + a2a3);
         if(true == isDP)

@@ -202,6 +202,9 @@ public class OkPacket extends RequestPacket
             process();
         }
         StringBuilder buf = new StringBuilder();
+        buf.append("[");
+        buf.append("" + number);
+        buf.append("] ");
         if(true == isRead)
         {
             buf.append("Reading ");
@@ -239,7 +242,7 @@ public class OkPacket extends RequestPacket
         }
         else
         {
-            buf.append("Writing ");
+            buf.append("writing ");
             if(true == isDP)
             {
                 buf.append("DP:");
@@ -603,7 +606,7 @@ public class OkPacket extends RequestPacket
             case 0: break; // no reset requested or acked.
             case 1: buf.append("\r\nrequest Reset"); break;
             case 2: buf.append("\r\nINVALID Reset !"); break;
-            case 3: buf.append("\r\nReset request acknowleadged"); break;
+            case 3: buf.append("\r\nReset request acknowledged"); break;
             }
 
             if(0 != ((data>>12) & 0xfff))
@@ -699,6 +702,14 @@ public class OkPacket extends RequestPacket
 
             help = ((data>>1) & 0x7ff);
             buf.append("\r\nTDESIGNER: " + help);
+            if(0xE4940088 == data)
+            {
+                buf.append("\r\n RP2040 Core 1");
+            }
+            else if(0xE4940080 == data)
+            {
+                buf.append("\r\n RP2040 Core 0");
+            }
             break;
 
 
@@ -750,7 +761,7 @@ public class OkPacket extends RequestPacket
             case 0: break; // no reset requested or acked.
             case 1: buf.append("\r\nrequest Reset"); break;
             case 2: buf.append("\r\nINVALID Reset !"); break;
-            case 3: buf.append("\r\nReset request acknowleadged"); break;
+            case 3: buf.append("\r\nReset request acknowledged"); break;
             }
 
             if(0 != ((data>>12) & 0xfff))

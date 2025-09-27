@@ -39,7 +39,7 @@ public class swdState implements PacketSequence
     private boolean reportDP = false;
     private boolean reportAP = false;
     private long numPackets = 0;
-    private long numOpPackets = 0;
+    private long numOkPackets = 0;
     private long numApPackets = 0;
     private long numDpPackets = 0;
 
@@ -96,7 +96,7 @@ public class swdState implements PacketSequence
 
         if(nextPacket instanceof OkPacket)
         {
-            numOpPackets++;
+            numOkPackets++;
             curLineStatus = lineState.SWD;
             OkPacket okp = (OkPacket)nextPacket;
             okp.setSELECT(SELECT);
@@ -121,7 +121,7 @@ public class swdState implements PacketSequence
                     }
                     else
                     {
-                        out.println("chnaging from AP " + previousAP + "to Address Port " + memApAddr);
+                        out.println("changing from AP " + previousAP + "to Address Port " + memApAddr);
                     }
                 }
             }
@@ -204,10 +204,10 @@ public class swdState implements PacketSequence
 
     public void printSummary()
     {
-        out.println("found " + numPackets   + " SWD Packets");
-        out.println("found " + numOpPackets + " OK Packets");
-        out.println("found " + numDpPackets + " DP Packets");
-        out.println("found " + numApPackets + " AP Packets");
+        out.println("found " + numPackets   + " SWD packets");
+        out.println("found " + numOkPackets + " OK packets (= DP + AP packets)");
+        out.println("found " + numDpPackets + " DP packets");
+        out.println("found " + numApPackets + " AP packets");
         out.println("accessed Memory:");
         memAp.printMemoryMap(out);
     }

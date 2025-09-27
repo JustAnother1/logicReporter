@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
+import ch.qos.logback.core.util.StatusPrinter2;
 import de.nomagic.spi.SpiReporter;
 import de.nomagic.swd.SwdReporter;
 
@@ -86,7 +86,8 @@ public class ReporterMain
         {
           // StatusPrinter will handle this
         }
-        StatusPrinter.printInCaseOfErrorsOrWarnings(context);
+        StatusPrinter2 sp = new StatusPrinter2();
+        sp.printInCaseOfErrorsOrWarnings(context);
     }
 
     public static String getCommitID()
